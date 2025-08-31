@@ -77,9 +77,10 @@ class TrivyScanner(VulnerabilityScanner):
                 '--quiet'
             ]
             
-            # Add timeout if specified
+            # Add timeout if specified (convert seconds to Trivy format)
             if self.timeout:
-                cmd.extend(['--timeout', str(self.timeout)])
+                timeout_str = f"{self.timeout}s"  # Trivy expects format like "300s" or "5m"
+                cmd.extend(['--timeout', timeout_str])
             
             # Add image name
             cmd.append(full_image_name)

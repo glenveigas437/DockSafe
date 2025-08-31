@@ -24,7 +24,7 @@ class VulnerabilityScan(db.Model):
     scanner_version = db.Column(db.String(50))
     scanner_type = db.Column(db.String(20), default='trivy')  # trivy, clair
     scan_output = db.Column(db.Text)  # Raw scanner output
-    metadata = db.Column(JSON)  # Additional scan metadata
+    scan_metadata = db.Column(JSON)  # Additional scan metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -72,6 +72,7 @@ class VulnerabilityScan(db.Model):
             'scan_duration_seconds': self.scan_duration_seconds,
             'scanner_version': self.scanner_version,
             'scanner_type': self.scanner_type,
+            'scan_metadata': self.scan_metadata,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -176,7 +177,7 @@ class NotificationHistory(db.Model):
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(50), default='SENT')  # SENT, FAILED, PENDING
     error_message = db.Column(db.Text)
-    metadata = db.Column(JSON)  # Additional notification metadata
+    notification_metadata = db.Column(JSON)  # Additional notification metadata
     
     def __repr__(self):
         return f'<NotificationHistory {self.notification_type} - {self.status}>'
@@ -192,7 +193,7 @@ class NotificationHistory(db.Model):
             'sent_at': self.sent_at.isoformat() if self.sent_at else None,
             'status': self.status,
             'error_message': self.error_message,
-            'metadata': self.metadata
+            'notification_metadata': self.notification_metadata
         }
 
 class ScanConfiguration(db.Model):

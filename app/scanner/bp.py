@@ -2,7 +2,7 @@
 Scanner blueprint for Flask application
 """
 
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, render_template
 from flask_login import login_required, current_user
 from app.scanner.service import ScannerService
 from app.models import VulnerabilityScan, Vulnerability, ScanException
@@ -22,8 +22,12 @@ def get_scanner_service():
     }
     return ScannerService(config)
 
+@bp.route('/scan', methods=['GET'])
+def scanner_page():
+    """Scanner web interface page"""
+    return render_template('scanner/index.html')
+
 @bp.route('/scan', methods=['POST'])
-@login_required
 def scan_image():
     """Scan a container image for vulnerabilities"""
     try:
@@ -49,7 +53,7 @@ def scan_image():
         scan_record = scanner_service.scan_image(
             image_name=image_name,
             image_tag=image_tag,
-            user_id=current_user.id if current_user else None
+            user_id=current_user.id if current_user and hasattr(current_user, 'id') else None
         )
         
         # Return scan results
@@ -68,7 +72,6 @@ def scan_image():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/scan/<int:scan_id>', methods=['GET'])
-@login_required
 def get_scan_result(scan_id):
     """Get scan result by ID"""
     try:
@@ -92,7 +95,6 @@ def get_scan_result(scan_id):
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/scan/<int:scan_id>/vulnerabilities', methods=['GET'])
-@login_required
 def get_scan_vulnerabilities(scan_id):
     """Get vulnerabilities for a specific scan"""
     try:
@@ -115,7 +117,6 @@ def get_scan_vulnerabilities(scan_id):
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/history', methods=['GET'])
-@login_required
 def get_scan_history():
     """Get scan history"""
     try:
@@ -138,7 +139,6 @@ def get_scan_history():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/statistics', methods=['GET'])
-@login_required
 def get_scan_statistics():
     """Get scan statistics"""
     try:
@@ -157,7 +157,6 @@ def get_scan_statistics():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/status', methods=['GET'])
-@login_required
 def get_scanner_status():
     """Get scanner status and information"""
     try:
@@ -171,7 +170,6 @@ def get_scanner_status():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/exceptions', methods=['GET'])
-@login_required
 def get_exceptions():
     """Get scan exceptions"""
     try:
@@ -200,7 +198,6 @@ def get_exceptions():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/exceptions', methods=['POST'])
-@login_required
 def create_exception():
     """Create a new scan exception"""
     try:

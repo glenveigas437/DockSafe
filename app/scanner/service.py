@@ -95,7 +95,7 @@ class ScannerService:
         scan_record.scan_duration_seconds = scan_result.scan_duration_seconds
         scan_record.scanner_version = scan_result.scanner_version
         scan_record.scan_output = scan_result.scan_output
-        scan_record.metadata = scan_result.metadata
+        scan_record.scan_metadata = scan_result.metadata
         scan_record.scan_timestamp = datetime.utcnow()
     
     def _store_vulnerabilities(self, scan_record: VulnerabilityScan, scan_result: ScanResult):
