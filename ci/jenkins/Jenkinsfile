@@ -1,0 +1,143 @@
+pipeline {
+    agent any
+    
+    environment {
+        VULNERABILITY_THRESHOLD = 'HIGH'
+        SCANNER_TYPE = 'trivy'
+        DOCKSAFE_URL = 'http://localhost:5000'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    docker.build("docksafe:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+        
+        stage('Vulnerability Scan') {
+            steps {
+                script {
+                    // Start DockSafe services
+                    sh 'docker-compose up -d postgres'
+                    sh 'sleep 10'
+                    
+                    // Run vulnerability scan
+                    def scanResponse = httpRequest(
+                        url: "${DOCKSAFE_URL}/scanner/scan",
+                        httpMode: 'POST',
+                        contentType: 'APPLICATION_JSON',
+                        requestBody: """
+                        {
+                            "image_name": "docksafe",
+                            "image_tag": "${env.BUILD_NUMBER}"
+                        }
+                        """
+                    )
+                    
+                    // Parse scan response
+                    def scanData = readJSON text: scanResponse.content
+                    env.SCAN_ID = scanData.scan_id
+                    env.SCAN_STATUS = scanData.scan_status
+                    env.TOTAL_VULNERABILITIES = scanData.total_vulnerabilities
+                    env.SHOULD_FAIL_BUILD = scanData.should_fail_build
+                    
+                    echo "Scan completed: ${scanData.message}"
+                    echo "Scan ID: ${env.SCAN_ID}"
+                    echo "Total vulnerabilities: ${env.TOTAL_VULNERABILITIES}"
+                    echo "Should fail build: ${env.SHOULD_FAIL_BUILD}"
+                }
+            }
+        }
+        
+        stage('Check Scan Results') {
+            steps {
+                script {
+                    // Get detailed scan results
+                    def scanResult = httpRequest(
+                        url: "${DOCKSAFE_URL}/scanner/scan/${env.SCAN_ID}",
+                        httpMode: 'GET'
+                    )
+                    
+                    def scanDetails = readJSON text: scanResult.content
+                    
+                    // Check for critical or high vulnerabilities
+                    if (scanDetails.scan.critical_count > 0 || scanDetails.scan.high_count > 0) {
+                        error "Critical or high vulnerabilities detected! Build failed."
+                    } else {
+                        echo "✅ No critical or high vulnerabilities found"
+                    }
+                }
+            }
+        }
+        
+        stage('Generate Report') {
+            steps {
+                script {
+                    // Generate vulnerability report
+                    def reportResponse = httpRequest(
+                        url: "${DOCKSAFE_URL}/reports/generate",
+                        httpMode: 'POST',
+                        contentType: 'APPLICATION_JSON',
+                        requestBody: """
+                        {
+                            "scan_id": "${env.SCAN_ID}",
+                            "format": "json"
+                        }
+                        """
+                    )
+                    
+                    // Save report as artifact
+                    writeFile file: "vulnerability-report.json", text: reportResponse.content
+                    archiveArtifacts artifacts: "vulnerability-report.json"
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                expression { env.SHOULD_FAIL_BUILD == 'false' }
+            }
+            steps {
+                echo "Deploying application..."
+                // Add deployment steps here
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Cleanup
+            sh 'docker-compose down'
+            
+            // Send notifications
+            script {
+                if (currentBuild.result == 'FAILURE') {
+                    // Send failure notification
+                    echo "Build failed due to vulnerabilities"
+                    // Add notification logic here
+                } else if (currentBuild.result == 'SUCCESS') {
+                    // Send success notification
+                    echo "Build successful - no critical vulnerabilities"
+                    // Add notification logic here
+                }
+            }
+        }
+        
+        success {
+            echo "Pipeline completed successfully"
+        }
+        
+        failure {
+            echo "Pipeline failed"
+        }
+    }
+}

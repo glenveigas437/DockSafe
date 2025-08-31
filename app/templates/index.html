@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}DockSafe - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i class="fas fa-shield-alt me-3"></i>DockSafe
+            </h1>
+            <p class="lead text-muted mb-4">
+                Automated Container Image Vulnerability Scanner with CI/CD Integration
+            </p>
+            <p class="text-muted">
+                Secure your containerized applications with real-time vulnerability scanning, 
+                comprehensive reporting, and seamless CI/CD pipeline integration.
+            </p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-search fa-2x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Vulnerability Scanning</h5>
+                        <p class="card-text text-muted">
+                            Automatically scan container images for known vulnerabilities using industry-standard tools like Trivy and Clair.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-code-branch fa-2x text-success"></i>
+                        </div>
+                        <h5 class="card-title">CI/CD Integration</h5>
+                        <p class="card-text text-muted">
+                            Seamlessly integrate with Jenkins, GitHub Actions, and GitLab CI to prevent vulnerable images from reaching production.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-bell fa-2x text-warning"></i>
+                        </div>
+                        <h5 class="card-title">Real-time Notifications</h5>
+                        <p class="card-text text-muted">
+                            Get instant alerts via Slack, Teams, or email when critical vulnerabilities are detected.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-chart-line fa-2x text-info"></i>
+                        </div>
+                        <h5 class="card-title">Analytics Dashboard</h5>
+                        <p class="card-text text-muted">
+                            Track vulnerability trends, monitor scan history, and analyze security metrics with our comprehensive dashboard.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-file-alt fa-2x text-secondary"></i>
+                        </div>
+                        <h5 class="card-title">Detailed Reports</h5>
+                        <p class="card-text text-muted">
+                            Generate comprehensive vulnerability reports in multiple formats for compliance and audit purposes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-cogs fa-2x text-danger"></i>
+                        </div>
+                        <h5 class="card-title">Exception Management</h5>
+                        <p class="card-text text-muted">
+                            Manage approved vulnerabilities and exceptions with proper approval workflows and expiration dates.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-6">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">
+                            <i class="fas fa-rocket me-2"></i>Quick Start
+                        </h5>
+                        <p class="card-text">Start scanning your container images immediately with our easy-to-use interface.</p>
+                        <a href="{{ url_for('scanner.scan_image') }}" class="btn btn-primary">
+                            <i class="fas fa-play me-2"></i>Start Scanning
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">
+                            <i class="fas fa-chart-bar me-2"></i>View Dashboard
+                        </h5>
+                        <p class="card-text">Monitor your security metrics and vulnerability trends in real-time.</p>
+                        <a href="{{ url_for('dashboard.index') }}" class="btn btn-success">
+                            <i class="fas fa-tachometer-alt me-2"></i>Open Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-heartbeat me-2"></i>System Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success rounded-circle me-3" style="width: 12px; height: 12px;"></div>
+                            <span class="fw-bold">Scanner Status:</span>
+                            <span class="ms-2 text-success">Available</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success rounded-circle me-3" style="width: 12px; height: 12px;"></div>
+                            <span class="fw-bold">Database:</span>
+                            <span class="ms-2 text-success">Connected</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success rounded-circle me-3" style="width: 12px; height: 12px;"></div>
+                            <span class="fw-bold">API Status:</span>
+                            <span class="ms-2 text-success">Operational</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success rounded-circle me-3" style="width: 12px; height: 12px;"></div>
+                            <span class="fw-bold">Version:</span>
+                            <span class="ms-2">1.0.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
