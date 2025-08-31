@@ -13,7 +13,7 @@ class Config:
     
     # Database Configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://docksafe:docksafe@localhost/docksafe'
+        'sqlite:///docksafe.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Scanner Configuration
@@ -58,7 +58,7 @@ class DevelopmentConfig(Config):
     
     # Development-specific settings
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'postgresql://docksafe:docksafe@localhost/docksafe_dev'
+        'sqlite:///docksafe_dev.db'
     
     # Enable detailed logging
     LOG_LEVEL = 'DEBUG'
