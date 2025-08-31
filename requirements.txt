@@ -7,7 +7,7 @@ Flask-WTF==1.2.1
 WTForms==3.1.1
 
 # Database (SQLite for development, PostgreSQL for production)
-SQLAlchemy==2.0.23
+SQLAlchemy>=2.0.25
 
 # API Integrations
 requests==2.31.0

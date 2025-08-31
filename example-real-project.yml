@@ -1,0 +1,60 @@
+# Example: How to adapt DockSafe CI/CD templates for YOUR project
+# File: .github/workflows/security-scan.yml
+
+name: Security Scan with DockSafe
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Build YOUR project's Docker image
+      run: |
+        # CHANGE THIS: Build your actual project image
+        docker build -t myproject:${{ github.sha }} .
+        
+    - name: Start DockSafe (if needed)
+      run: |
+        # Start DockSafe application for scanning
+        docker-compose up -d docksafe
+        sleep 10
+        
+    - name: Scan YOUR project image
+      run: |
+        # CHANGE THIS: Scan your project image
+        curl -X POST http://localhost:5001/scanner/scan \
+          -H "Content-Type: application/json" \
+          -d '{
+            "image_name": "myproject",  # CHANGE: Your project name
+            "image_tag": "'${{ github.sha }}'"
+          }'
+          
+    - name: Check scan results
+      run: |
+        # Get scan results for YOUR project
+        SCAN_RESULT=$(curl -s http://localhost:5001/scanner/history?limit=1)
+        
+        # Check if YOUR project has vulnerabilities
+        if echo "$SCAN_RESULT" | jq -e '.scans[0].critical_count > 0 or .scans[0].high_count > 0' > /dev/null; then
+          echo "❌ Critical or high vulnerabilities detected in YOUR project!"
+          echo "$SCAN_RESULT" | jq '.scans[0]'
+          exit 1
+        else
+          echo "✅ No critical or high vulnerabilities found in YOUR project"
+          echo "$SCAN_RESULT" | jq '.scans[0]'
+        fi
+
+# Key Changes Made:
+# 1. "docksafe" → "myproject" (your project name)
+# 2. Build your project's Dockerfile, not DockSafe's
+# 3. Scan your project's image, not DockSafe's
+# 4. All references point to your project

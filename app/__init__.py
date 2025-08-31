@@ -7,7 +7,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -17,6 +17,18 @@ load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+
+# Simple User model for development
+class User(UserMixin, db.Model):
+    """Simple user model for development"""
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Load user by ID for Flask-Login"""
+    return User.query.get(int(user_id))
 
 def create_app(config_name=None):
     """Application factory pattern"""
