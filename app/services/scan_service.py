@@ -4,6 +4,8 @@ from app.scanner.trivy_scanner import TrivyScanner
 from app.scanner.clair_scanner import ClairScanner
 from app.scanner.engine import ScanResult
 from app.constants import DatabaseConstants, SystemConstants, ErrorMessages
+import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +18,7 @@ class ScanService:
     def _initialize_scanner(self):
         if self.scanner_type.lower() == DatabaseConstants.SCANNER_TYPES[1]:
             return ClairScanner(self.config)
+        else:
             return TrivyScanner(self.config)
     
     def scan_image(self, image_name, image_tag='latest', user_id=None, group_id=None):
@@ -29,6 +32,7 @@ class ScanService:
             created_by=user_id
         )
         
+        try:
             scan_result = self.scanner.scan_image(image_name, image_tag)
             
             ScanMapper.update_scan(scan_record.id, 

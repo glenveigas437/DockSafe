@@ -1,5 +1,6 @@
 from app.models import Group, user_groups
 from app.constants import DatabaseConstants
+from app import db
 
 class GroupMapper:
     @staticmethod

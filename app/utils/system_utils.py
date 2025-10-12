@@ -1,3 +1,7 @@
+import subprocess
+import logging
+import shlex
+import time
 from typing import Dict, Any, Optional, List
 
 logger = logging.getLogger(__name__)
@@ -5,19 +9,26 @@ logger = logging.getLogger(__name__)
 class SystemUtils:
     @staticmethod
     def check_command_exists(command: str) -> bool:
+        try:
             subprocess.run(['which', command], check=True, capture_output=True)
+            return True
         except subprocess.CalledProcessError:
+            return False
     
     @staticmethod
     def get_command_version(command: str) -> Optional[str]:
+        try:
             result = subprocess.run([command, '--version'], 
                                   capture_output=True, text=True, timeout=10)
             if result.returncode == 0:
                 return result.stdout.strip().split('\n')[0]
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            pass
+        return None
     
     @staticmethod
     def execute_command(command: List[str], timeout: int = 300) -> Dict[str, Any]:
+        try:
             result = subprocess.run(command, capture_output=True, text=True, timeout=timeout)
             return {
                 'success': result.returncode == 0,
@@ -43,26 +54,35 @@ class SystemUtils:
 class FileUtils:
     @staticmethod
     def create_temp_file(content: str, suffix: str = '.txt') -> str:
+        import tempfile
         with tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False) as f:
             f.write(content)
             return f.name
     
     @staticmethod
     def read_file_safely(file_path: str) -> Optional[str]:
+        try:
             with open(file_path, 'r') as f:
                 return f.read()
         except (FileNotFoundError, PermissionError, IOError):
+            return None
     
     @staticmethod
     def write_file_safely(file_path: str, content: str) -> bool:
+        try:
             with open(file_path, 'w') as f:
                 f.write(content)
+            return True
         except (PermissionError, IOError):
+            return False
     
     @staticmethod
     def cleanup_temp_file(file_path: str):
+        import os
+        try:
             os.unlink(file_path)
         except OSError:
+            pass
 
 class DockerUtils:
     @staticmethod
@@ -100,10 +120,15 @@ class SecurityUtils:
     @staticmethod
     def validate_image_reference(image_name: str, image_tag: str) -> bool:
         if not image_name or not image_tag:
+            return False
         
         if '..' in image_name or '..' in image_tag:
+            return False
         
         if len(image_name) > 255 or len(image_tag) > 100:
+            return False
+        
+        return True
         
     
     @staticmethod
@@ -122,6 +147,8 @@ class PerformanceUtils:
     
     @staticmethod
     def get_memory_usage() -> Dict[str, Any]:
+        try:
+            import psutil
             process = psutil.Process()
             memory_info = process.memory_info()
             return {

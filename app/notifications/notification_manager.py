@@ -2,6 +2,8 @@ from typing import Dict, List, Optional
 from flask import current_app
 from .slack_service import create_slack_service
 from .email_service import create_email_service
+import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +16,7 @@ class NotificationManager:
         self._initialize_services()
     
     def _initialize_services(self):
+        try:
             from app.models import NotificationConfiguration
             
             configs = NotificationConfiguration.query.filter_by(is_active=True).all()
@@ -26,6 +29,7 @@ class NotificationManager:
                             slack_service.config = config
                             self.slack_services.append(slack_service)
                             logger.info(f"Slack service initialized for config: {config.name}")
+                        else:
                             logger.warning(f"Failed to initialize Slack service for config: {config.name}")
                 
                 elif config.type == 'chat' and config.service == 'Teams':
@@ -44,6 +48,7 @@ class NotificationManager:
                         email_service.config = config
                         self.email_services.append(email_service)
                         logger.info(f"Email service initialized for config: {config.name}")
+                    else:
                         logger.warning(f"Failed to initialize Email service for config: {config.name}")
             
             logger.info(f"Initialized {len(self.slack_services)} Slack services, {len(self.email_services)} Email services")
@@ -74,6 +79,7 @@ class NotificationManager:
             logger.debug("Alert not sent - severity threshold not met")
         
         for slack_service in self.slack_services:
+            try:
                 success = slack_service.send_vulnerability_alert(scan_data)
                 results['slack'].append({
                     'config_name': getattr(slack_service.config, 'name', 'Unknown'),
@@ -90,6 +96,7 @@ class NotificationManager:
                 })
         
         for email_service in self.email_services:
+            try:
                 success = email_service.send_vulnerability_alert(scan_data)
                 results['email'].append({
                     'config_name': getattr(email_service.config, 'name', 'Unknown'),
@@ -114,6 +121,7 @@ class NotificationManager:
         }
         
         for slack_service in self.slack_services:
+            try:
                 success = slack_service.send_scan_completion_notification(scan_data)
                 results['slack'].append({
                     'config_name': getattr(slack_service.config, 'name', 'Unknown'),
@@ -130,6 +138,7 @@ class NotificationManager:
                 })
         
         for email_service in self.email_services:
+            try:
                 success = email_service.send_scan_completion_notification(scan_data)
                 results['email'].append({
                     'config_name': getattr(email_service.config, 'name', 'Unknown'),
@@ -155,6 +164,7 @@ class NotificationManager:
         }
         
         for slack_service in self.slack_services:
+            try:
                 success = slack_service.send_test_message()
                 results['slack'].append({
                     'config_name': getattr(slack_service.config, 'name', 'Unknown'),
@@ -171,6 +181,7 @@ class NotificationManager:
                 })
         
         for email_service in self.email_services:
+            try:
                 success = email_service.send_test_message()
                 results['email'].append({
                     'config_name': getattr(email_service.config, 'name', 'Unknown'),
@@ -188,9 +199,15 @@ class NotificationManager:
         
     
     def _should_send_alert(self, scan_data: Dict) -> bool:
+        """
+        Determine if an alert should be sent based on scan data
         
+        Args:
             scan_data: Dictionary containing scan results
             
+        Returns:
+            bool: True if alert should be sent, False otherwise
+        """
         return scan_data.get('total_vulnerabilities', 0) > 0
     
     def is_slack_configured(self) -> bool:
@@ -226,17 +243,34 @@ def get_notification_manager() -> NotificationManager:
     return notification_manager
 
 def send_vulnerability_alert(scan_data: Dict) -> Dict[str, bool]:
+    """
+    Send vulnerability alert
     
+    Args:
         scan_data: Dictionary containing scan results
         
+    Returns:
+        Dict[str, bool]: Results of sending alerts
+    """
     return get_notification_manager().send_vulnerability_alert(scan_data)
 
 def send_scan_completion_notification(scan_data: Dict) -> Dict[str, bool]:
+    """
+    Send scan completion notification
     
+    Args:
         scan_data: Dictionary containing scan results
         
+    Returns:
+        Dict[str, bool]: Results of sending notifications
+    """
     return get_notification_manager().send_scan_completion_notification(scan_data)
 
 def send_test_message() -> Dict[str, bool]:
+    """
+    Send test message
     
+    Returns:
+        Dict[str, bool]: Results of sending test messages
+    """
     return get_notification_manager().send_test_message()

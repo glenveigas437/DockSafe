@@ -1,3 +1,5 @@
+import logging
+import json
 from typing import Dict, Any, Optional
 from flask import jsonify, request
 
@@ -15,6 +17,7 @@ class LoggingUtils:
             handler.setFormatter(formatter)
             logger.addHandler(handler)
         
+        return logger
     
     @staticmethod
     def log_request(logger: logging.Logger, endpoint: str, method: str, 
@@ -46,18 +49,24 @@ class LoggingUtils:
 class JSONUtils:
     @staticmethod
     def safe_json_loads(json_str: str, default: Any = None) -> Any:
+        try:
             return json.loads(json_str)
         except (json.JSONDecodeError, TypeError):
+            return default
     
     @staticmethod
     def safe_json_dumps(obj: Any, default: str = "{}") -> str:
+        try:
             return json.dumps(obj)
         except (TypeError, ValueError):
+            return default
     
     @staticmethod
     def extract_json_from_request() -> Dict[str, Any]:
+        try:
             return request.get_json() or {}
         except Exception:
+            return {}
             return {}
 
 class ErrorHandlingUtils:

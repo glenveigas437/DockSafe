@@ -1,6 +1,7 @@
 from app.models import VulnerabilityScan, Vulnerability, ScanException
 from sqlalchemy import func, and_
 from app.constants import DatabaseConstants, SystemConstants
+from app import db
 
 class ScanMapper:
     @staticmethod

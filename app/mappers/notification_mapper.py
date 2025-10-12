@@ -1,4 +1,5 @@
 from app.models import NotificationConfiguration, NotificationHistory
+from app import db
 
 class NotificationMapper:
     @staticmethod
