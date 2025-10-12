@@ -6,30 +6,37 @@ from flask import current_app, url_for
 import secrets
 import string
 
+
 class EmailService:
     """Service to handle email operations including verification"""
-    
+
     SENDER_EMAIL = "noreply.docksafe@gmail.com"
-    
+
     @staticmethod
     def generate_verification_token():
         """Generate a secure verification token"""
-        return ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32))
-    
+        return "".join(
+            secrets.choice(string.ascii_letters + string.digits) for _ in range(32)
+        )
+
     @staticmethod
     def send_verification_email(user_email, verification_token, user_name=None):
         """Send email verification email"""
         try:
             # Create verification link - handle both request context and standalone usage
             try:
-                verification_url = url_for('auth.verify_email', token=verification_token, _external=True)
+                verification_url = url_for(
+                    "auth.verify_email", token=verification_token, _external=True
+                )
             except RuntimeError:
                 # Fallback when not in request context
-                verification_url = f"http://localhost:5000/auth/verify-email/{verification_token}"
-            
+                verification_url = (
+                    f"http://localhost:5000/auth/verify-email/{verification_token}"
+                )
+
             # Email content
             subject = "Verify Your DockSafe Email Address"
-            
+
             html_body = f"""
             <!DOCTYPE html>
             <html>
@@ -82,7 +89,7 @@ class EmailService:
             </body>
             </html>
             """
-            
+
             text_body = f"""
             DockSafe Email Verification
             
@@ -105,21 +112,21 @@ class EmailService:
             This email was sent from noreply.docksafe@gmail.com
             © 2025 DockSafe. All rights reserved.
             """
-            
+
             # Send email
             EmailService._send_email(user_email, subject, html_body, text_body)
             return True
-            
+
         except Exception as e:
             current_app.logger.error(f"Error sending verification email: {e}")
             return False
-    
+
     @staticmethod
     def send_welcome_email(user_email, user_name=None):
         """Send welcome email after successful verification"""
         try:
             subject = "Welcome to DockSafe! 🎉"
-            
+
             html_body = f"""
             <!DOCTYPE html>
             <html>
@@ -169,7 +176,7 @@ class EmailService:
             </body>
             </html>
             """
-            
+
             text_body = f"""
             Welcome to DockSafe!
             
@@ -194,43 +201,51 @@ class EmailService:
             This email was sent from noreply.docksafe@gmail.com
             © 2025 DockSafe. All rights reserved.
             """
-            
+
             EmailService._send_email(user_email, subject, html_body, text_body)
             return True
-            
+
         except Exception as e:
             current_app.logger.error(f"Error sending welcome email: {e}")
             return False
-    
+
     @staticmethod
     def _send_email(to_email, subject, html_body, text_body):
         """Internal method to send email"""
         try:
             # Get SMTP configuration from Flask config
-            smtp_server = current_app.config.get('DOCSAFE_EMAIL_SMTP_SERVER', 'smtp.gmail.com')
-            smtp_port = current_app.config.get('DOCSAFE_EMAIL_SMTP_PORT', 587)
-            smtp_username = current_app.config.get('DOCSAFE_EMAIL_USERNAME', 'noreply.docksafe@gmail.com')
-            smtp_password = current_app.config.get('DOCSAFE_EMAIL_PASSWORD')
-            use_tls = current_app.config.get('DOCSAFE_EMAIL_USE_TLS', True)
-            
+            smtp_server = current_app.config.get(
+                "DOCSAFE_EMAIL_SMTP_SERVER", "smtp.gmail.com"
+            )
+            smtp_port = current_app.config.get("DOCSAFE_EMAIL_SMTP_PORT", 587)
+            smtp_username = current_app.config.get(
+                "DOCSAFE_EMAIL_USERNAME", "noreply.docksafe@gmail.com"
+            )
+            smtp_password = current_app.config.get("DOCSAFE_EMAIL_PASSWORD")
+            use_tls = current_app.config.get("DOCSAFE_EMAIL_USE_TLS", True)
+
             # Check if SMTP password is configured
             if not smtp_password:
-                current_app.logger.warning("SMTP password not configured. Email will be simulated.")
-                return EmailService._simulate_email(to_email, subject, html_body, text_body)
-            
+                current_app.logger.warning(
+                    "SMTP password not configured. Email will be simulated."
+                )
+                return EmailService._simulate_email(
+                    to_email, subject, html_body, text_body
+                )
+
             # Create message
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = EmailService.SENDER_EMAIL
-            msg['To'] = to_email
-            
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = EmailService.SENDER_EMAIL
+            msg["To"] = to_email
+
             # Create text and HTML parts
-            text_part = MIMEText(text_body, 'plain')
-            html_part = MIMEText(html_body, 'html')
-            
+            text_part = MIMEText(text_body, "plain")
+            html_part = MIMEText(html_body, "html")
+
             msg.attach(text_part)
             msg.attach(html_part)
-            
+
             # Send email via SMTP
             context = ssl.create_default_context()
             with smtplib.SMTP(smtp_server, smtp_port) as server:
@@ -238,15 +253,15 @@ class EmailService:
                     server.starttls(context=context)
                 server.login(smtp_username, smtp_password)
                 server.send_message(msg)
-            
+
             current_app.logger.info(f"✅ Email sent successfully to {to_email}")
             return True
-            
+
         except Exception as e:
             current_app.logger.error(f"❌ Error sending email to {to_email}: {e}")
             # Fallback to simulation if SMTP fails
             return EmailService._simulate_email(to_email, subject, html_body, text_body)
-    
+
     @staticmethod
     def _simulate_email(to_email, subject, html_body, text_body):
         """Simulate email sending for testing/fallback"""
@@ -256,7 +271,7 @@ class EmailService:
             current_app.logger.info(f"   To: {to_email}")
             current_app.logger.info(f"   From: {EmailService.SENDER_EMAIL}")
             current_app.logger.info(f"   Subject: {subject}")
-            
+
             # Extract verification link if present
             verification_link = "Not found"
             if 'href="' in html_body:
@@ -264,9 +279,9 @@ class EmailService:
                     verification_link = html_body.split('href="')[1].split('"')[0]
                 except:
                     pass
-            
+
             current_app.logger.info(f"   Verification Link: {verification_link}")
-            
+
             # Print to console for easy testing
             print(f"\n{'='*60}")
             print(f"📧 EMAIL SIMULATION")
@@ -277,9 +292,9 @@ class EmailService:
             print(f"\n📧 Email would be sent successfully!")
             print(f"🔗 Verification link: {verification_link}")
             print(f"{'='*60}\n")
-            
+
             return True
-            
+
         except Exception as e:
             current_app.logger.error(f"Error in _simulate_email: {e}")
             return False
