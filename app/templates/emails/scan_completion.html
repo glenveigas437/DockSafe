@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .status { padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .danger { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .info-box { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .button { background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ DockSafe Scan Completion</h1>
+        <h2>{{ emoji }} Scan {{ status.title() }}</h2>
+    </div>
+    
+    <div class="status {{ status_color }}">
+        <strong>Scan {{ status }} for {{ image_name }}:{{ image_tag }}</strong>
+    </div>
+    
+    <div class="info-box">
+        <h3>Scan Details</h3>
+        <p><strong>Duration:</strong> {{ duration }} seconds</p>
+        <p><strong>Image:</strong> {{ image_name }}:{{ image_tag }}</p>
+        <p><strong>Status:</strong> {{ status }}</p>
+    </div>
+    
+    <div class="info-box">
+        <h3>Next Steps</h3>
+        {% if status.lower() == 'success' %}
+        <p>✅ Scan completed successfully! Please review the results in the dashboard.</p>
+        {% elif status.lower() == 'failed' %}
+        <p>❌ Scan failed. Please check the logs and try again.</p>
+        {% else %}
+        <p>ℹ️ Scan {{ status }}. Please check the dashboard for details.</p>
+        {% endif %}
+        <a href="#" class="button">View Dashboard</a>
+    </div>
+    
+    <div class="info-box">
+        <p><strong>Note:</strong> This is an automated message from DockSafe Container Image Vulnerability Scanner.</p>
+    </div>
+</body>
+</html>

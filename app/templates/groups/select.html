@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}DockSafe - Select Group{% endblock %}
+
+{% block content %}
+<!-- Group Selection Header -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Welcome to DockSafe!</h1>
+        <p class="text-gray-600 mt-1">Choose or create a group to get started</p>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="stat-icon primary">
+            <i class="fas fa-users"></i>
+        </div>
+    </div>
+</div>
+
+<!-- User's Groups -->
+<div class="card mb-8" id="userGroupsCard">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-user-friends"></i>
+            Your Groups
+        </h3>
+        <p class="card-subtitle">Groups you're already a member of</p>
+    </div>
+    <div class="card-body">
+        <div id="userGroups">
+            <div class="text-center text-gray-500 py-8">
+                <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                <p>Loading your groups...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create New Group -->
+<div class="card mb-8">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-plus-circle"></i>
+            Create New Group
+        </h3>
+        <p class="card-subtitle">Start a new group for your team</p>
+    </div>
+    <div class="card-body">
+        <form id="createGroupForm">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label for="groupName" class="form-label">Group Name</label>
+                    <input type="text" class="form-control" id="groupName" name="name" 
+                           placeholder="e.g., Development Team, Security Team" required>
+                    <div class="form-text">Choose a descriptive name for your group</div>
+                </div>
+                <div>
+                    <label for="groupDescription" class="form-label">Description (Optional)</label>
+                    <input type="text" class="form-control" id="groupDescription" name="description" 
+                           placeholder="Brief description of the group's purpose">
+                </div>
+            </div>
+            <div class="flex gap-4 justify-end">
+                <button type="button" class="btn btn-outline" onclick="showJoinGroup()">
+                    <i class="fas fa-search"></i>
+                    Join Existing Group
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Create Group
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Join Existing Group -->
+<div class="card mb-8" id="joinGroupCard" style="display: none;">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-search"></i>
+            Join Existing Group
+        </h3>
+        <p class="card-subtitle">Search and join groups by name</p>
+    </div>
+    <div class="card-body">
+        <form id="searchGroupForm">
+            <div class="flex gap-4 mb-6">
+                <div class="flex-1">
+                    <input type="text" class="form-control" id="searchQuery" name="query" 
+                           placeholder="Search for group names..." required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+            </div>
+        </form>
+        
+        <div id="searchResults">
+            <!-- Search results will be displayed here -->
+        </div>
+        
+        <div class="flex justify-end mt-4">
+            <button type="button" class="btn btn-outline" onclick="hideJoinGroup()">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Start -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-rocket"></i>
+            Quick Start
+        </h3>
+        <p class="card-subtitle">Get started with DockSafe</p>
+    </div>
+    <div class="card-body">
+        <div class="grid grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-xl font-bold">1</span>
+                </div>
+                <h4 class="text-lg font-semibold mb-2">Choose Group</h4>
+                <p class="text-gray-600">Select an existing group or create a new one</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-success text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-xl font-bold">2</span>
+                </div>
+                <h4 class="text-lg font-semibold mb-2">Start Scanning</h4>
+                <p class="text-gray-600">Scan your Docker images for vulnerabilities</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-warning text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-xl font-bold">3</span>
+                </div>
+                <h4 class="text-lg font-semibold mb-2">View Reports</h4>
+                <p class="text-gray-600">Analyze results and generate reports</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const createGroupForm = document.getElementById('createGroupForm');
+    const searchGroupForm = document.getElementById('searchGroupForm');
+    
+    // Load user's groups on page load
+    loadUserGroups();
+    
+    // Create group form submission
+    createGroupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        createGroup();
+    });
+    
+    // Search group form submission
+    searchGroupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        searchGroups();
+    });
+    
+    function loadUserGroups() {
+        fetch('/groups/list')
+            .then(response => response.json())
+            .then(data => {
+                const userGroupsDiv = document.getElementById('userGroups');
+                
+                if (data.success && data.groups.length > 0) {
+                    let html = '<div class="grid grid-cols-1 gap-4">';
+                    
+                    data.groups.forEach(group => {
+                        html += `
+                            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold">${group.name}</h4>
+                                        <p class="text-gray-600">${group.description || 'No description'}</p>
+                                        <div class="flex items-center gap-4 mt-1">
+                                            <span class="text-sm text-gray-500">
+                                                <i class="fas fa-users"></i> ${group.member_count} members
+                                            </span>
+                                            <span class="text-sm text-gray-500">
+                                                <i class="fas fa-search"></i> ${group.scan_count} scans
+                                            </span>
+                                            <span class="badge ${group.role === 'owner' ? 'bg-primary' : 'bg-gray-500'} text-white">
+                                                ${group.role}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="btn btn-primary" onclick="selectGroup(${group.id})">
+                                        <i class="fas fa-arrow-right"></i>
+                                        Enter Group
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    userGroupsDiv.innerHTML = html;
+                } else {
+                    userGroupsDiv.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-users text-4xl mb-4"></i>
+                            <p>You're not a member of any groups yet</p>
+                            <p class="text-sm">Create a new group or join an existing one</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading groups:', error);
+                document.getElementById('userGroups').innerHTML = `
+                    <div class="text-center text-red-500 py-8">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Error loading groups</p>
+                    </div>
+                `;
+            });
+    }
+    
+    function createGroup() {
+        const formData = new FormData(createGroupForm);
+        const data = Object.fromEntries(formData);
+        
+        fetch('/groups/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                createGroupForm.reset();
+                loadUserGroups(); // Reload groups
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error creating group:', error);
+            showAlert('Failed to create group', 'danger');
+        });
+    }
+    
+    function searchGroups() {
+        const query = document.getElementById('searchQuery').value;
+        
+        if (!query.trim()) {
+            showAlert('Please enter a search query', 'warning');
+            return;
+        }
+        
+        fetch(`/groups/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('searchResults');
+                
+                if (data.success && data.groups.length > 0) {
+                    let html = '<div class="space-y-3">';
+                    
+                    data.groups.forEach(group => {
+                        const isMember = group.is_member;
+                        html += `
+                            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h4 class="text-lg font-semibold">${group.name}</h4>
+                                    <p class="text-gray-600">${group.description || 'No description'}</p>
+                                    <span class="text-sm text-gray-500">
+                                        <i class="fas fa-users"></i> ${group.member_count} members
+                                    </span>
+                                </div>
+                                <div>
+                                    ${isMember ? 
+                                        '<span class="badge bg-green-500 text-white">Already a member</span>' :
+                                        `<button class="btn btn-primary" onclick="joinGroup(${group.id})">
+                                            <i class="fas fa-plus"></i> Join
+                                        </button>`
+                                    }
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-search text-4xl mb-4"></i>
+                            <p>No groups found matching "${query}"</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error searching groups:', error);
+                showAlert('Failed to search groups', 'danger');
+            });
+    }
+    
+    function joinGroup(groupId) {
+        fetch(`/groups/${groupId}/join`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                loadUserGroups(); // Reload groups
+                searchGroups(); // Refresh search results
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error joining group:', error);
+            showAlert('Failed to join group', 'danger');
+        });
+    }
+    
+    function selectGroup(groupId) {
+        // Store selected group in session and redirect to dashboard
+        sessionStorage.setItem('selectedGroupId', groupId);
+        window.location.href = '/dashboard';
+    }
+    
+    function showJoinGroup() {
+        document.getElementById('joinGroupCard').style.display = 'block';
+        document.getElementById('createGroupForm').style.display = 'none';
+    }
+    
+    function hideJoinGroup() {
+        document.getElementById('joinGroupCard').style.display = 'none';
+        document.getElementById('createGroupForm').style.display = 'block';
+        document.getElementById('searchResults').innerHTML = '';
+        document.getElementById('searchQuery').value = '';
+    }
+    
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+        `;
+        
+        document.querySelector('main').insertBefore(alertDiv, document.querySelector('main').firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

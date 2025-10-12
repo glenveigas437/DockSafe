@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom components */
+@layer components {
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  }
+  
+  .card-modern {
+    @apply bg-white/95 backdrop-blur-lg border-0 rounded-2xl shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl;
+  }
+  
+  .btn-modern {
+    @apply rounded-xl font-semibold px-5 py-3 transition-all duration-300 border-0 uppercase tracking-wide text-sm;
+  }
+  
+  .btn-primary-modern {
+    @apply bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+  
+  .btn-success-modern {
+    @apply bg-gradient-to-r from-green-500 to-green-400 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+  
+  .btn-warning-modern {
+    @apply bg-gradient-to-r from-pink-400 to-red-400 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+  
+  .btn-danger-modern {
+    @apply bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+  
+  .navbar-modern {
+    @apply bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg backdrop-blur-lg border-0;
+  }
+  
+  .form-control-modern {
+    @apply rounded-xl border-2 border-gray-200 px-4 py-3 text-base transition-all duration-300 bg-white/90 text-gray-800 focus:border-primary-500 focus:ring-4 focus:ring-primary-200 focus:bg-white;
+  }
+  
+  .table-modern {
+    @apply rounded-xl overflow-hidden shadow-lg;
+  }
+  
+  .table-modern thead th {
+    @apply bg-gradient-to-r from-primary-500 to-secondary-500 text-white border-0 font-semibold px-4 py-4;
+  }
+  
+  .table-modern tbody tr {
+    @apply transition-all duration-300 hover:bg-primary-50 hover:scale-[1.01];
+  }
+  
+  .severity-critical {
+    @apply text-red-500 font-bold;
+  }
+  
+  .severity-high {
+    @apply text-orange-500 font-bold;
+  }
+  
+  .severity-medium {
+    @apply text-blue-500 font-bold;
+  }
+  
+  .severity-low {
+    @apply text-green-500 font-bold;
+  }
+  
+  .status-success {
+    @apply text-green-600 font-semibold;
+  }
+  
+  .status-failed {
+    @apply text-red-600 font-semibold;
+  }
+  
+  .status-in-progress {
+    @apply text-blue-600 font-semibold;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-white/10 rounded;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gradient-to-b from-primary-500 to-secondary-500 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply from-primary-600 to-secondary-600;
+}
+
+/* Custom animations */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+}

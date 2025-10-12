@@ -1,414 +1,339 @@
 {% extends "base.html" %}
 
-{% block title %}DockSafe - Scanner{% endblock %}
+{% block title %}DockSafe - Vulnerability Scanner{% endblock %}
+{% block page_title %}Vulnerability Scanner{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Scanner Header -->
-            <div class="text-center mb-5">
-                <h1 class="display-5 fw-bold text-primary">
-                    <i class="fas fa-search me-3"></i>Vulnerability Scanner
-                </h1>
-                <p class="lead text-muted">
-                    Scan your Docker images for security vulnerabilities
+<!-- Scanner Header -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-body text-center py-8">
+            <div class="mb-4">
+                <i class="fas fa-search text-4xl text-blue-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Container Vulnerability Scanner</h1>
+                <p class="text-lg text-gray-600 mb-4">
+                    Scan your container images for security vulnerabilities
+                </p>
+                <p class="text-gray-500 max-w-2xl mx-auto">
+                    Use industry-standard tools like Trivy to identify known vulnerabilities in your container images. 
+                    Get detailed reports with severity levels and remediation guidance.
                 </p>
             </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Scanner Form -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-docker me-2"></i>Scan Container Image
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form id="scanForm">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label for="imageName" class="form-label">Image Name</label>
-                                    <input type="text" class="form-control" id="imageName" name="image_name" 
-                                           placeholder="e.g., nginx, python, myproject" required>
-                                    <div class="form-text">Enter the Docker image name to scan</div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="imageTag" class="form-label">Image Tag</label>
-                                    <input type="text" class="form-control" id="imageTag" name="image_tag" 
-                                           value="latest" placeholder="latest">
-                                    <div class="form-text">Image tag (default: latest)</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-grid">
-                            <button type="button" class="btn btn-primary btn-lg" id="scanBtn">
-                                <i class="fas fa-search me-2"></i>Start Scan
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Scan Progress -->
-            <div class="card border-0 shadow-sm mb-4" id="scanProgress" style="display: none;">
-                <div class="card-body text-center">
-                    <div class="spinner-border text-primary mb-3" role="status">
-                        <span class="visually-hidden">Scanning...</span>
+<!-- Scanner Form -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-xl font-semibold mb-0">
+                <i class="fas fa-cube text-blue-600 mr-2"></i>
+                Scan Container Image
+            </h2>
+        </div>
+        <div class="card-body">
+            <form id="scanForm" class="space-y-6">
+                <!-- Scanner Type Selection -->
+                <div>
+                    <label for="scannerType" class="form-label">
+                        <i class="fas fa-cogs mr-2"></i>
+                        Scanner Type
+                    </label>
+                    <select id="scannerType" name="scannerType" class="form-control" required>
+                        <option value="trivy">Trivy (Recommended)</option>
+                        <option value="clair">Clair (Requires Registry)</option>
+                    </select>
+                    <div class="text-sm text-gray-500 mt-1">
+                        <strong>Trivy:</strong> Direct image scanning, works with local images<br>
+                        <strong>Clair:</strong> Registry-based scanning, requires image to be pushed to a registry first
                     </div>
-                    <h5>Scanning Image...</h5>
-                    <p class="text-muted" id="scanStatus">Initializing scanner...</p>
                 </div>
-            </div>
-
-            <!-- Scan Results -->
-            <div class="card border-0 shadow-sm mb-4" id="scanResults" style="display: none;">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clipboard-list me-2"></i>Scan Results
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h6>Image Information</h6>
-                            <p><strong>Image:</strong> <span id="resultImage"></span></p>
-                            <p><strong>Scan ID:</strong> <span id="resultScanId"></span></p>
-                            <p><strong>Status:</strong> <span id="resultStatus"></span></p>
-                            <p><strong>Duration:</strong> <span id="resultDuration"></span> seconds</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Vulnerability Summary</h6>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div class="h4 text-danger" id="criticalCount">0</div>
-                                        <small class="text-muted">Critical</small>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div class="h4 text-warning" id="highCount">0</div>
-                                        <small class="text-muted">High</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div class="h4 text-info" id="mediumCount">0</div>
-                                        <small class="text-muted">Medium</small>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div class="h4 text-success" id="lowCount">0</div>
-                                        <small class="text-muted">Low</small>
-                                    </div>
-                                </div>
-                            </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="imageName" class="form-label">
+                            <i class="fas fa-tag mr-2"></i>
+                            Image Name
+                        </label>
+                        <input type="text" 
+                               id="imageName" 
+                               name="imageName" 
+                               class="form-control" 
+                               placeholder="e.g., nginx, ubuntu, node"
+                               required>
+                        <div class="text-sm text-gray-500 mt-1">
+                            Enter the name of the container image to scan
                         </div>
                     </div>
                     
-                    <div class="alert" id="buildStatus" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <span id="buildStatusText"></span>
-                    </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button class="btn btn-outline-primary" id="viewDetailsBtn">
-                            <i class="fas fa-eye me-2"></i>View Details
-                        </button>
-                        <button class="btn btn-outline-success" id="newScanBtn">
-                            <i class="fas fa-plus me-2"></i>New Scan
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Scans -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-history me-2"></i>Recent Scans
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div id="recentScans">
-                        <div class="text-center text-muted">
-                            <i class="fas fa-clock fa-2x mb-3"></i>
-                            <p>No recent scans found</p>
+                    <div>
+                        <label for="imageTag" class="form-label">
+                            <i class="fas fa-tag mr-2"></i>
+                            Image Tag
+                        </label>
+                        <input type="text" 
+                               id="imageTag" 
+                               name="imageTag" 
+                               class="form-control" 
+                               placeholder="latest"
+                               value="latest">
+                        <div class="text-sm text-gray-500 mt-1">
+                            Specify the image tag (default: latest)
                         </div>
                     </div>
                 </div>
-            </div>
+                
+                <div class="flex justify-center">
+                    <button type="submit" id="scanButton" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search mr-2"></i>
+                        Start Scan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<!-- Scan Details Modal -->
-<div class="modal fade" id="scanDetailsModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Scan Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Content will be loaded here -->
-            </div>
+<!-- Scan Results -->
+<div id="scanResults" class="mb-8" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-xl font-semibold mb-0">
+                <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>
+                Scan Results
+            </h2>
         </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const scanForm = document.getElementById('scanForm');
-    const scanProgress = document.getElementById('scanProgress');
-    const scanResults = document.getElementById('scanResults');
-    const scanBtn = document.getElementById('scanBtn');
-    
-    // Load recent scans on page load
-    loadRecentScans();
-    
-    scanBtn.addEventListener('click', function(e) {
-        console.log('Button clicked!');
-        e.preventDefault();
-        
-        const imageName = document.getElementById('imageName').value;
-        const imageTag = document.getElementById('imageTag').value;
-        
-        console.log('Image Name:', imageName);
-        console.log('Image Tag:', imageTag);
-        
-        if (!imageName) {
-            alert('Please enter an image name');
-            return;
-        }
-        
-        // Show progress
-        scanProgress.style.display = 'block';
-        scanResults.style.display = 'none';
-        scanBtn.disabled = true;
-        scanBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Scanning...';
-        
-        // Make API call
-        console.log('Making fetch request to /scanner/scan');
-        fetch('/scanner/scan', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                image_name: imageName,
-                image_tag: imageTag
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            scanProgress.style.display = 'none';
-            scanResults.style.display = 'block';
-            scanBtn.disabled = false;
-            scanBtn.innerHTML = '<i class="fas fa-search me-2"></i>Start Scan';
+        <div class="card-body">
+            <div id="scanStatus" class="mb-4">
+                <div class="flex items-center justify-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-blue-600 mr-3"></i>
+                    <span class="text-lg font-medium text-gray-900">Scanning in progress...</span>
+                </div>
+            </div>
             
-            if (data.error) {
-                showError(data.error);
-            } else {
-                showResults(data);
-            }
-        })
-        .catch(error => {
-            scanProgress.style.display = 'none';
-            scanBtn.disabled = false;
-            scanBtn.innerHTML = '<i class="fas fa-search me-2"></i>Start Scan';
-            showError('Scan failed: ' + error.message);
-        });
-    });
+            <div id="scanDetails" style="display: none;">
+                <!-- Scan details will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Images -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-xl font-semibold mb-0">
+                <i class="fas fa-star text-blue-600 mr-2"></i>
+                Popular Images to Scan
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <button onclick="fillImageForm('nginx', 'latest')" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <i class="fas fa-server text-2xl text-green-600 mb-2"></i>
+                    <div class="font-medium text-gray-900">nginx</div>
+                    <div class="text-sm text-gray-500">Web Server</div>
+                </button>
+                
+                <button onclick="fillImageForm('ubuntu', 'latest')" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <i class="fas fa-desktop text-2xl text-orange-600 mb-2"></i>
+                    <div class="font-medium text-gray-900">ubuntu</div>
+                    <div class="text-sm text-gray-500">OS</div>
+                </button>
+                
+                <button onclick="fillImageForm('node', 'latest')" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <div class="w-8 h-8 mx-auto mb-2 bg-green-600 rounded flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">JS</span>
+                    </div>
+                    <div class="font-medium text-gray-900">node</div>
+                    <div class="text-sm text-gray-500">Runtime</div>
+                </button>
+                
+                <button onclick="fillImageForm('python', 'latest')" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <div class="w-8 h-8 mx-auto mb-2 bg-blue-600 rounded flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">Py</span>
+                    </div>
+                    <div class="font-medium text-gray-900">python</div>
+                    <div class="text-sm text-gray-500">Runtime</div>
+                </button>
+                
+                <button onclick="fillImageForm('postgres', 'latest')" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <i class="fas fa-database text-2xl text-blue-600 mb-2"></i>
+                    <div class="font-medium text-gray-900">postgres</div>
+                    <div class="text-sm text-gray-500">Database</div>
+                </button>
+                
+                <button onclick="fillImageForm('redis', 'latest')" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <i class="fas fa-memory text-2xl text-red-600 mb-2"></i>
+                    <div class="font-medium text-gray-900">redis</div>
+                    <div class="text-sm text-gray-500">Cache</div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scanning Tips -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-xl font-semibold mb-0">
+                <i class="fas fa-lightbulb text-blue-600 mr-2"></i>
+                Scanning Tips
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                        Best Practices
+                    </h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Always specify image tags for reproducible scans
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Scan images regularly to catch new vulnerabilities
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Use specific versions instead of 'latest' in production
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Review and prioritize critical vulnerabilities first
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                        What Gets Scanned
+                    </h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Operating system packages and libraries
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Application dependencies and frameworks
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Configuration files and secrets
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-arrow-right text-blue-600 mr-2 mt-1 text-xs"></i>
+                            Known CVEs and security advisories
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fill image form with popular image
+function fillImageForm(imageName, imageTag) {
+    document.getElementById('imageName').value = imageName;
+    document.getElementById('imageTag').value = imageTag;
+}
+
+// Handle scan form submission
+document.getElementById('scanForm').addEventListener('submit', function(e) {
+    e.preventDefault();
     
-    function showResults(data) {
-        document.getElementById('resultImage').textContent = data.image_name + ':' + data.image_tag;
-        document.getElementById('resultScanId').textContent = data.scan_id;
-        document.getElementById('resultStatus').textContent = data.scan_status;
-        document.getElementById('resultDuration').textContent = data.scan_duration_seconds;
-        
-        // Update vulnerability counts
-        document.getElementById('criticalCount').textContent = data.severity_breakdown.critical;
-        document.getElementById('highCount').textContent = data.severity_breakdown.high;
-        document.getElementById('mediumCount').textContent = data.severity_breakdown.medium;
-        document.getElementById('lowCount').textContent = data.severity_breakdown.low;
-        
-        // Update build status
-        const buildStatus = document.getElementById('buildStatus');
-        const buildStatusText = document.getElementById('buildStatusText');
-        
-        if (data.should_fail_build) {
-            buildStatus.className = 'alert alert-danger';
-            buildStatusText.textContent = 'Build should FAIL - Critical or High vulnerabilities detected';
-        } else {
-            buildStatus.className = 'alert alert-success';
-            buildStatusText.textContent = 'Build can proceed - No critical vulnerabilities detected';
+    const imageName = document.getElementById('imageName').value.trim();
+    const imageTag = document.getElementById('imageTag').value.trim() || 'latest';
+    const scannerType = document.getElementById('scannerType').value;
+    const scanButton = document.getElementById('scanButton');
+    const scanResults = document.getElementById('scanResults');
+    const scanStatus = document.getElementById('scanStatus');
+    
+    if (!imageName) {
+        alert('Please enter an image name');
+        return;
+    }
+    
+    // Show loading state
+    scanButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Scanning...';
+    scanButton.disabled = true;
+    scanResults.style.display = 'block';
+    
+    // Show scanning status
+    scanStatus.innerHTML = `
+        <div class="flex items-center justify-center py-8">
+            <i class="fas fa-spinner fa-spin text-2xl text-blue-600 mr-3"></i>
+            <span class="text-lg font-medium text-gray-900">Scanning ${imageName}:${imageTag}...</span>
+        </div>
+        <div class="text-center text-gray-500">
+            This may take a few minutes depending on the image size
+        </div>
+    `;
+    
+    // Start scan
+    fetch('/scanner/scan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            image_name: imageName,
+            image_tag: imageTag,
+            scanner_type: scannerType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
         }
         
-        // Store scan ID for details view
-        document.getElementById('viewDetailsBtn').onclick = () => viewScanDetails(data.scan_id);
-        
-        // Load recent scans
-        loadRecentScans();
-    }
-    
-    function showError(message) {
-        scanResults.style.display = 'block';
-        document.getElementById('resultImage').textContent = 'Error';
-        document.getElementById('resultScanId').textContent = 'N/A';
-        document.getElementById('resultStatus').textContent = 'FAILED';
-        document.getElementById('resultDuration').textContent = '0';
-        
-        document.getElementById('criticalCount').textContent = '0';
-        document.getElementById('highCount').textContent = '0';
-        document.getElementById('mediumCount').textContent = '0';
-        document.getElementById('lowCount').textContent = '0';
-        
-        const buildStatus = document.getElementById('buildStatus');
-        buildStatus.className = 'alert alert-danger';
-        document.getElementById('buildStatusText').textContent = message;
-    }
-    
-    function viewScanDetails(scanId) {
-        fetch(`/scanner/scan/${scanId}`)
-            .then(response => response.json())
-            .then(data => {
-                const modalBody = document.getElementById('modalBody');
-                modalBody.innerHTML = generateDetailsHTML(data);
-                new bootstrap.Modal(document.getElementById('scanDetailsModal')).show();
-            })
-            .catch(error => {
-                alert('Error loading scan details: ' + error.message);
-            });
-    }
-    
-    function generateDetailsHTML(data) {
-        let html = `
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <h6>Scan Information</h6>
-                    <p><strong>Image:</strong> ${data.scan.image_name}:${data.scan.image_tag}</p>
-                    <p><strong>Scan ID:</strong> ${data.scan.id}</p>
-                    <p><strong>Status:</strong> ${data.scan.scan_status}</p>
-                    <p><strong>Duration:</strong> ${data.scan.scan_duration_seconds} seconds</p>
-                    <p><strong>Scanner:</strong> ${data.scan.scanner_type} ${data.scan.scanner_version}</p>
-                </div>
-                <div class="col-md-6">
-                    <h6>Vulnerability Summary</h6>
-                    <p><strong>Total:</strong> ${data.scan.total_vulnerabilities}</p>
-                    <p><strong>Critical:</strong> ${data.scan.critical_count}</p>
-                    <p><strong>High:</strong> ${data.scan.high_count}</p>
-                    <p><strong>Medium:</strong> ${data.scan.medium_count}</p>
-                    <p><strong>Low:</strong> ${data.scan.low_count}</p>
-                </div>
+        // Show scan started message
+        scanStatus.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-check-circle text-2xl text-green-600 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Scan Started Successfully</h3>
+                <p class="text-gray-500 mb-4">Scan ID: ${data.id}</p>
+                <p class="text-gray-500">The scan is running in the background. You can check the results in the Reports section.</p>
             </div>
         `;
         
-        if (data.vulnerabilities && data.vulnerabilities.length > 0) {
-            html += `
-                <h6>Vulnerabilities Found</h6>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>CVE ID</th>
-                                <th>Severity</th>
-                                <th>Package</th>
-                                <th>Fixed Version</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-            
-            data.vulnerabilities.forEach(vuln => {
-                const severityClass = {
-                    'CRITICAL': 'text-danger',
-                    'HIGH': 'text-warning',
-                    'MEDIUM': 'text-info',
-                    'LOW': 'text-success'
-                }[vuln.severity] || 'text-muted';
-                
-                html += `
-                    <tr>
-                        <td><code>${vuln.cve_id}</code></td>
-                        <td><span class="${severityClass} fw-bold">${vuln.severity}</span></td>
-                        <td>${vuln.package_name} ${vuln.package_version}</td>
-                        <td>${vuln.fixed_version || 'N/A'}</td>
-                        <td>${vuln.description.substring(0, 100)}${vuln.description.length > 100 ? '...' : ''}</td>
-                    </tr>
-                `;
-            });
-            
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        } else {
-            html += '<div class="alert alert-success">No vulnerabilities found!</div>';
-        }
+        // Reset form
+        document.getElementById('scanForm').reset();
+        document.getElementById('imageTag').value = 'latest';
         
-        return html;
-    }
-    
-    function loadRecentScans() {
-        fetch('/scanner/history?limit=5')
-            .then(response => response.json())
-            .then(data => {
-                const recentScansDiv = document.getElementById('recentScans');
-                
-                if (data.scans && data.scans.length > 0) {
-                    let html = '<div class="list-group list-group-flush">';
-                    data.scans.forEach(scan => {
-                        const statusClass = {
-                            'SUCCESS': 'text-success',
-                            'FAILED': 'text-danger',
-                            'IN_PROGRESS': 'text-warning'
-                        }[scan.scan_status] || 'text-muted';
-                        
-                        html += `
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">${scan.image_name}:${scan.image_tag}</h6>
-                                    <small class="text-muted">Scan ID: ${scan.id} | ${new Date(scan.scan_timestamp).toLocaleString()}</small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-primary rounded-pill">${scan.total_vulnerabilities} vulns</span>
-                                    <span class="badge ${statusClass} rounded-pill ms-1">${scan.scan_status}</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    html += '</div>';
-                    recentScansDiv.innerHTML = html;
-                } else {
-                    recentScansDiv.innerHTML = `
-                        <div class="text-center text-muted">
-                            <i class="fas fa-clock fa-2x mb-3"></i>
-                            <p>No recent scans found</p>
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                console.error('Error loading recent scans:', error);
-            });
-    }
-    
-    // New scan button
-    document.getElementById('newScanBtn').addEventListener('click', function() {
-        scanResults.style.display = 'none';
-        scanForm.reset();
+    })
+    .catch(error => {
+        console.error('Scan error:', error);
+        scanStatus.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-2xl text-red-600 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Scan Failed</h3>
+                <p class="text-gray-500 mb-4">${error.message}</p>
+                <button onclick="document.getElementById('scanResults').style.display='none'" class="btn btn-primary">
+                    Try Again
+                </button>
+            </div>
+        `;
+    })
+    .finally(() => {
+        // Reset button
+        scanButton.innerHTML = '<i class="fas fa-search mr-2"></i>Start Scan';
+        scanButton.disabled = false;
     });
+});
+
+// Auto-focus on image name input
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('imageName').focus();
 });
 </script>
 {% endblock %}

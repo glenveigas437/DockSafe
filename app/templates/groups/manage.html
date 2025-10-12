@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}DockSafe - Manage Group{% endblock %}
+{% block page_title %}Manage Group{% endblock %}
+
+{% block content %}
+<!-- Group Management Header -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-body">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ group.name }}</h1>
+                    <p class="text-lg text-gray-600">{{ group.description or 'No description' }}</p>
+                </div>
+                <a href="{{ url_for('groups.index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Groups
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Member Section -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-xl font-semibold mb-0">
+                <i class="fas fa-user-plus text-blue-600 mr-2"></i>
+                Add Member
+            </h2>
+        </div>
+        <div class="card-body">
+            <form id="addMemberForm" class="flex gap-4 items-end">
+                <div class="flex-1">
+                    <label for="memberEmail" class="form-label">Email Address</label>
+                    <input type="email" id="memberEmail" name="email" class="form-control" placeholder="user@example.com" required>
+                </div>
+                
+                <div class="flex-1">
+                    <label for="memberRole" class="form-label">Role</label>
+                    <select id="memberRole" name="role" class="form-control">
+                        <option value="member">Member</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Members List -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="text-xl font-semibold mb-0">
+            <i class="fas fa-users text-blue-600 mr-2"></i>
+            Group Members
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if members %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for member in members %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ member.picture_url or 'https://ui-avatars.com/api/?name=' + member.first_name + '+' + member.last_name + '&background=3b82f6&color=fff&size=40' }}" 
+                                 alt="{{ member.first_name }}" 
+                                 class="w-10 h-10 rounded-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                 data-initial="{{ member.first_name[0].upper() if member.first_name else 'U' }}">
+                            <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm" style="display: none;" data-initial="{{ member.first_name[0].upper() if member.first_name else 'U' }}">{{ member.first_name[0].upper() if member.first_name else 'U' }}</div>
+                            <div>
+                                <div class="font-medium text-gray-900">
+                                    {{ member.first_name }} {{ member.last_name }}
+                                </div>
+                                <div class="text-sm text-gray-500">{{ member.email }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <span class="badge {{ 'bg-blue-600' if member.role == 'owner' else 'bg-green-600' if member.role == 'admin' else 'bg-gray-600' }}">
+                                {{ member.role.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if member.role != 'owner' and user_role in ['owner', 'admin'] %}
+                        <div class="flex gap-2">
+                            {% if member.role != 'admin' %}
+                                <button onclick="updateMemberRole({{ member.id }}, 'admin')" 
+                                        class="btn btn-sm btn-outline-primary flex-1">
+                                    <i class="fas fa-user-shield mr-1"></i>
+                                    Make Admin
+                                </button>
+                            {% endif %}
+                            
+                            <button onclick="removeMember({{ member.id }})" 
+                                    class="btn btn-sm btn-outline-danger flex-1">
+                                <i class="fas fa-user-times mr-1"></i>
+                                Remove
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Members</h3>
+                <p class="text-gray-500">Add members to this group to start collaborating</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="messageContainer" class="fixed top-4 right-4 z-50" style="display: none;">
+    <div id="messageAlert" class="alert">
+        <span id="messageText"></span>
+    </div>
+</div>
+
+<script>
+// Show message
+function showMessage(message, type = 'success') {
+    const container = document.getElementById('messageContainer');
+    const alert = document.getElementById('messageAlert');
+    const text = document.getElementById('messageText');
+    
+    alert.className = `alert alert-${type}`;
+    text.textContent = message;
+    container.style.display = 'block';
+    
+    setTimeout(() => {
+        container.style.display = 'none';
+    }, 3000);
+}
+
+// Add member
+document.getElementById('addMemberForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = {
+        email: formData.get('email'),
+        role: formData.get('role')
+    };
+    
+    fetch(`/groups/{{ group.id }}/invite`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('User Added', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showMessage('Error: ' + (data.error || 'Unknown error'), 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Error adding member', 'danger');
+    });
+});
+
+// Update member role
+function updateMemberRole(memberId, newRole) {
+    if (!confirm(`Are you sure you want to make this user an ${newRole}?`)) {
+        return;
+    }
+    
+    fetch(`/groups/{{ group.id }}/members/${memberId}/role`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role: newRole })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('Member role updated', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showMessage('Error: ' + (data.error || 'Unknown error'), 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Error updating member role', 'danger');
+    });
+}
+
+// Remove member
+function removeMember(memberId) {
+    if (!confirm('Are you sure you want to remove this member from the group?')) {
+        return;
+    }
+    
+    fetch(`/groups/{{ group.id }}/members/${memberId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('Member removed', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showMessage('Error: ' + (data.error || 'Unknown error'), 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Error removing member', 'danger');
+    });
+}
+</script>
+{% endblock %}

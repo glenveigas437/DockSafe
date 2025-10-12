@@ -1,11 +1,8 @@
-"""
-Scanner blueprint for Flask application
-"""
 
-from flask import Blueprint, request, jsonify, current_app, render_template
-from flask_login import login_required, current_user
+from flask import Blueprint, request, jsonify, current_app, render_template, session
 from app.scanner.service import ScannerService
 from app.models import VulnerabilityScan, Vulnerability, ScanException
+from app.decorators import login_required
 from app import db
 import logging
 
@@ -23,11 +20,13 @@ def get_scanner_service():
     return ScannerService(config)
 
 @bp.route('/scan', methods=['GET'])
+@login_required
 def scanner_page():
     """Scanner web interface page"""
     return render_template('scanner/index.html')
 
 @bp.route('/scan', methods=['POST'])
+@login_required
 def scan_image():
     """Scan a container image for vulnerabilities"""
     try:
@@ -38,22 +37,48 @@ def scan_image():
         
         image_name = data.get('image_name')
         image_tag = data.get('image_tag', 'latest')
+        scanner_type = data.get('scanner_type', 'trivy')
         
         if not image_name:
             return jsonify({'error': 'image_name is required'}), 400
         
-        # Get scanner service
-        scanner_service = get_scanner_service()
+        # Validate scanner type
+        if scanner_type not in ['trivy', 'clair']:
+            return jsonify({'error': 'Invalid scanner type. Must be trivy or clair'}), 400
+        
+        # Get scanner service with specified scanner type
+        config = {
+            'scanner_type': scanner_type,
+            'timeout': current_app.config.get('SCANNER_TIMEOUT', 300),
+            'severity_threshold': current_app.config.get('VULNERABILITY_THRESHOLD', 'HIGH')
+        }
+        scanner_service = ScannerService(config)
         
         # Check if scanner is available
         if not scanner_service.is_scanner_available():
             return jsonify({'error': 'Vulnerability scanner is not available'}), 503
         
+        # Get user and group information
+        user_id = session.get('user_id')
+        group_id = session.get('selected_group_id')
+        
+        # If no group selected, try to get the user's first group
+        if not group_id and user_id:
+            from app.models import User
+            user = User.query.get(user_id)
+            if user and user.groups:
+                group_id = user.groups[0].id
+                session['selected_group_id'] = group_id
+        
+        if not group_id:
+            return jsonify({'error': 'No group selected. Please select a group first.'}), 400
+        
         # Perform scan
         scan_record = scanner_service.scan_image(
             image_name=image_name,
             image_tag=image_tag,
-            user_id=current_user.id if current_user and hasattr(current_user, 'id') else None
+            user_id=user_id,
+            group_id=group_id
         )
         
         # Return scan results
@@ -72,6 +97,7 @@ def scan_image():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/scan/<int:scan_id>', methods=['GET'])
+@login_required
 def get_scan_result(scan_id):
     """Get scan result by ID"""
     try:
@@ -95,6 +121,7 @@ def get_scan_result(scan_id):
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/scan/<int:scan_id>/vulnerabilities', methods=['GET'])
+@login_required
 def get_scan_vulnerabilities(scan_id):
     """Get vulnerabilities for a specific scan"""
     try:
@@ -117,6 +144,7 @@ def get_scan_vulnerabilities(scan_id):
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/history', methods=['GET'])
+@login_required
 def get_scan_history():
     """Get scan history"""
     try:
@@ -139,6 +167,7 @@ def get_scan_history():
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/statistics', methods=['GET'])
+@login_required
 def get_scan_statistics():
     """Get scan statistics"""
     try:

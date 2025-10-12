@@ -1,6 +1,3 @@
-"""
-Dashboard blueprint for DockSafe application
-"""
 
 from flask import Blueprint
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; }
+        .info-box { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ DockSafe Test Email</h1>
+    </div>
+    
+    <div class="success">
+        <strong>✅ Email Integration Test Successful!</strong>
+        <p>Your DockSafe email notifications are configured correctly.</p>
+    </div>
+    
+    <div class="info-box">
+        <h3>Test Details</h3>
+        <p><strong>Sent at:</strong> {{ sent_at }} UTC</p>
+        <p><strong>Recipients:</strong> {{ recipients }}</p>
+        <p><strong>SMTP Server:</strong> {{ smtp_server }}:{{ smtp_port }}</p>
+    </div>
+    
+    <div class="info-box">
+        <p><strong>Note:</strong> This is a test message to verify your DockSafe email configuration.</p>
+        <p>If you received this email, your email notifications are working properly!</p>
+    </div>
+</body>
+</html>

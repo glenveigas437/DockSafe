@@ -1,10 +1,140 @@
-"""
-Database models for DockSafe application
-"""
-
 from datetime import datetime
 from app import db
 from sqlalchemy.dialects.postgresql import JSON
+from flask_login import UserMixin
+
+user_groups = db.Table('user_groups',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), primary_key=True),
+    db.Column('joined_at', db.DateTime, default=datetime.utcnow),
+    db.Column('role', db.String(20), default='member')
+)
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=True, index=True)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(128), nullable=True)
+    google_id = db.Column(db.String(120), unique=True, nullable=True, index=True)
+    first_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(50), nullable=True)
+    picture_url = db.Column(db.String(500), nullable=True)
+    country = db.Column(db.String(100), nullable=True)
+    timezone = db.Column(db.String(50), nullable=True)
+    email_verified = db.Column(db.Boolean, default=False)
+    email_verification_token = db.Column(db.String(200), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'picture_url': self.picture_url,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_login': self.last_login.isoformat() if self.last_login else None
+        }
+    
+    @property
+    def groups(self):
+        return db.session.query(Group).join(user_groups).filter(user_groups.c.user_id == self.id).all()
+    
+    def is_member_of_group(self, group_id):
+        return db.session.query(user_groups).filter(
+            user_groups.c.user_id == self.id,
+            user_groups.c.group_id == group_id
+        ).first() is not None
+    
+    def get_role_in_group(self, group_id):
+        result = db.session.execute(
+            db.select(user_groups.c.role).where(
+                db.and_(
+                    user_groups.c.user_id == self.id,
+                    user_groups.c.group_id == group_id
+                )
+            )
+        ).scalar()
+        return result or 'member'
+
+class Group(db.Model):
+    __tablename__ = 'groups'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    description = db.Column(db.Text)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    def __repr__(self):
+        return f'<Group {self.name}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'created_by': self.created_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'is_active': self.is_active
+        }
+    
+    @property
+    def members(self):
+        return db.session.query(User).join(user_groups).filter(user_groups.c.group_id == self.id).all()
+    
+    @property
+    def vulnerability_scans(self):
+        return VulnerabilityScan.query.filter_by(group_id=self.id)
+    
+    def is_member(self, user):
+        return db.session.query(user_groups).filter(
+            user_groups.c.user_id == user.id,
+            user_groups.c.group_id == self.id
+        ).first() is not None
+    
+    def get_user_role(self, user):
+        result = db.session.execute(
+            db.select(user_groups.c.role).where(
+                db.and_(
+                    user_groups.c.user_id == user.id,
+                    user_groups.c.group_id == self.id
+                )
+            )
+        ).scalar()
+        return result or 'member'
+    
+    def add_member(self, user, role='member'):
+        if not self.is_member(user):
+            db.session.execute(user_groups.insert().values(
+                user_id=user.id,
+                group_id=self.id,
+                role=role
+            ))
+            db.session.commit()
+    
+    def remove_member(self, user):
+        db.session.execute(user_groups.delete().where(
+            db.and_(
+                user_groups.c.user_id == user.id,
+                user_groups.c.group_id == self.id
+            )
+        ))
+        db.session.commit()
+    
+    @staticmethod
+    def find_by_name(name):
+        return Group.query.filter_by(name=name).first()
 
 class VulnerabilityScan(db.Model):
     """Model for vulnerability scan results"""
@@ -25,12 +155,16 @@ class VulnerabilityScan(db.Model):
     scanner_type = db.Column(db.String(20), default='trivy')  # trivy, clair
     scan_output = db.Column(db.Text)  # Raw scanner output
     scan_metadata = db.Column(JSON)  # Additional scan metadata
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False, index=True)
+    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     vulnerabilities = db.relationship('Vulnerability', backref='scan', lazy='dynamic', cascade='all, delete-orphan')
-    notifications = db.relationship('NotificationHistory', backref='scan', lazy='dynamic')
+    notifications = db.relationship('NotificationHistory', lazy='dynamic')
+    group = db.relationship('Group', backref='scans')
+    creator = db.relationship('User', backref='created_scans')
     
     def __repr__(self):
         return f'<VulnerabilityScan {self.image_name}:{self.image_tag} - {self.scan_status}>'
@@ -73,6 +207,8 @@ class VulnerabilityScan(db.Model):
             'scanner_version': self.scanner_version,
             'scanner_type': self.scanner_type,
             'scan_metadata': self.scan_metadata,
+            'group_id': self.group_id,
+            'creator_id': self.creator_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
@@ -165,12 +301,50 @@ class ScanException(db.Model):
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
+class NotificationConfiguration(db.Model):
+    """Model for notification configuration settings"""
+    __tablename__ = 'notification_configurations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    type = db.Column(db.String(50), nullable=False)  # chat, email, webhook
+    service = db.Column(db.String(50), nullable=False)  # Slack, Teams, Gmail, etc.
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    webhook_url = db.Column(db.String(500), nullable=True)
+    channel = db.Column(db.String(100), nullable=True)
+    email_recipients = db.Column(db.Text, nullable=True)  # JSON array of emails
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    group = db.relationship('Group', backref='notification_configurations')
+    
+    def __repr__(self):
+        return f'<NotificationConfiguration {self.name} - {self.service}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type,
+            'service': self.service,
+            'group_id': self.group_id,
+            'webhook_url': self.webhook_url,
+            'channel': self.channel,
+            'email_recipients': self.email_recipients,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
 class NotificationHistory(db.Model):
     """Model for notification history"""
     __tablename__ = 'notification_history'
     
     id = db.Column(db.Integer, primary_key=True)
     scan_id = db.Column(db.Integer, db.ForeignKey('vulnerability_scans.id'), nullable=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     notification_type = db.Column(db.String(50), nullable=False)  # SLACK, TEAMS, EMAIL, WEBHOOK
     recipient = db.Column(db.String(255), nullable=False)
     message_content = db.Column(db.Text, nullable=False)
@@ -178,6 +352,10 @@ class NotificationHistory(db.Model):
     status = db.Column(db.String(50), default='SENT')  # SENT, FAILED, PENDING
     error_message = db.Column(db.Text)
     notification_metadata = db.Column(JSON)  # Additional notification metadata
+    
+    # Relationships
+    vulnerability_scan = db.relationship('VulnerabilityScan', lazy='select')
+    group = db.relationship('Group', backref='notification_history')
     
     def __repr__(self):
         return f'<NotificationHistory {self.notification_type} - {self.status}>'

@@ -1,335 +1,289 @@
 {% extends "base.html" %}
 
-{% block title %}DockSafe - Reports{% endblock %}
+{% block title %}DockSafe - Scan Reports{% endblock %}
+{% block page_title %}Scan Reports{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <!-- Reports Header -->
-            <div class="text-center mb-5">
-                <h1 class="display-5 fw-bold text-primary">
-                    <i class="fas fa-file-alt me-3"></i>Vulnerability Reports
-                </h1>
-                <p class="lead text-muted">
-                    View and download detailed vulnerability scan reports
+<!-- Reports Header -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-body text-center py-8">
+            <div class="mb-4">
+                <i class="fas fa-file-alt text-4xl text-blue-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Scan Reports</h1>
+                <p class="text-lg text-gray-600 mb-4">
+                    View and analyze vulnerability scan results
+                </p>
+                <p class="text-gray-500 max-w-2xl mx-auto">
+                    Access detailed vulnerability reports, download scan results, and track security trends across your container images.
                 </p>
             </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Report Filters -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-filter me-2"></i>Report Filters
-                    </h5>
+<!-- Filters -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-xl font-semibold mb-0">
+                <i class="fas fa-filter text-blue-600 mr-2"></i>
+                Filter Reports
+            </h2>
+        </div>
+        <div class="card-body">
+            <form id="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="dateFrom" class="form-label">From Date</label>
+                    <input type="date" id="dateFrom" name="dateFrom" class="form-control">
                 </div>
-                <div class="card-body">
-                    <form id="reportFilters">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="dateFrom" class="form-label">From Date</label>
-                                    <input type="date" class="form-control" id="dateFrom" name="date_from">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="dateTo" class="form-label">To Date</label>
-                                    <input type="date" class="form-control" id="dateTo" name="date_to">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="severityFilter" class="form-label">Severity</label>
-                                    <select class="form-select" id="severityFilter" name="severity">
-                                        <option value="">All Severities</option>
-                                        <option value="CRITICAL">Critical</option>
-                                        <option value="HIGH">High</option>
-                                        <option value="MEDIUM">Medium</option>
-                                        <option value="LOW">Low</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="statusFilter" class="form-label">Status</label>
-                                    <select class="form-select" id="statusFilter" name="status">
-                                        <option value="">All Statuses</option>
-                                        <option value="SUCCESS">Success</option>
-                                        <option value="FAILED">Failed</option>
-                                        <option value="IN_PROGRESS">In Progress</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="button" class="btn btn-outline-secondary" id="clearFilters">
-                                <i class="fas fa-times me-2"></i>Clear Filters
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-2"></i>Apply Filters
-                            </button>
-                        </div>
-                    </form>
+                
+                <div>
+                    <label for="dateTo" class="form-label">To Date</label>
+                    <input type="date" id="dateTo" name="dateTo" class="form-control">
                 </div>
-            </div>
+                
+                <div>
+                    <label for="severity" class="form-label">Severity</label>
+                    <select id="severity" name="severity" class="form-control">
+                        <option value="">All Severities</option>
+                        <option value="CRITICAL">Critical</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="SUCCESS">Success</option>
+                        <option value="FAILED">Failed</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                    </select>
+                </div>
+                
+                <div class="md:col-span-2 lg:col-span-4 flex justify-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search mr-2"></i>
+                        Apply Filters
+                    </button>
+                    <button type="button" onclick="clearFilters()" class="btn btn-outline-primary ml-2">
+                        <i class="fas fa-times mr-2"></i>
+                        Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-            <!-- Reports List -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-list me-2"></i>Scan Reports
-                    </h5>
-                    <div>
-                        <button class="btn btn-outline-success btn-sm" id="exportAllBtn">
-                            <i class="fas fa-download me-2"></i>Export All
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="reportsList">
-                        <div class="text-center text-muted">
-                            <i class="fas fa-file-alt fa-3x mb-3"></i>
-                            <p>No reports found</p>
-                            <p class="small">Run some scans to generate reports</p>
-                        </div>
-                    </div>
-                </div>
+<!-- Reports Table -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="text-xl font-semibold mb-0">
+            <i class="fas fa-list text-blue-600 mr-2"></i>
+            Scan Reports
+        </h2>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Status</th>
+                        <th>Vulnerabilities</th>
+                        <th>Scan Date</th>
+                        <th>Duration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTable">
+                    <tr>
+                        <td colspan="6" class="text-center py-8">
+                            <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-500">Loading reports...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Empty State -->
+<div id="emptyState" class="text-center py-12" style="display: none;">
+    <div class="card">
+        <div class="card-body py-12">
+            <i class="fas fa-file-alt text-6xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Reports Found</h3>
+            <p class="text-gray-500 mb-6">
+                {% if not session.get('selected_group_id') %}
+                    Please select a group to view scan reports, or start scanning your first container image.
+                {% else %}
+                    No scan reports found for the selected group. Start by scanning your first container image.
+                {% endif %}
+            </p>
+            <div class="flex justify-center gap-4">
+                {% if not session.get('selected_group_id') %}
+                    <a href="{{ url_for('groups.index') }}" class="btn btn-primary">
+                        <i class="fas fa-users mr-2"></i>
+                        Select Group
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('scanner.scanner_page') }}" class="btn btn-primary">
+                    <i class="fas fa-search mr-2"></i>
+                    Start Scanning
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Report Details Modal -->
-<div class="modal fade" id="reportDetailsModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Report Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="reportModalBody">
-                <!-- Content will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="downloadReportBtn">
-                    <i class="fas fa-download me-2"></i>Download PDF
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const reportFilters = document.getElementById('reportFilters');
-    const clearFiltersBtn = document.getElementById('clearFilters');
-    const exportAllBtn = document.getElementById('exportAllBtn');
+// Global functions for report actions
+window.viewReport = function(reportId) {
+    window.open(`/reports/${reportId}/details`, '_blank');
+};
+
+window.downloadReport = function(reportId) {
+    fetch(`/reports/${reportId}/download`)
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            }
+            throw new Error('Download failed');
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `scan_report_${reportId}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error('Download error:', error);
+            alert('Failed to download report');
+        });
+};
+
+// Load reports
+function loadReports() {
+    const formData = new FormData(document.getElementById('filterForm'));
+    const params = new URLSearchParams();
     
-    // Load reports on page load
-    loadReports();
-    
-    // Apply filters
-    reportFilters.addEventListener('submit', function(e) {
-        e.preventDefault();
-        loadReports();
-    });
-    
-    // Clear filters
-    clearFiltersBtn.addEventListener('click', function() {
-        reportFilters.reset();
-        loadReports();
-    });
-    
-    // Export all reports
-    exportAllBtn.addEventListener('click', function() {
-        exportAllReports();
-    });
-    
-    function loadReports() {
-        const formData = new FormData(reportFilters);
-        const params = new URLSearchParams(formData);
-        
-        fetch(`/reports/list?${params.toString()}`)
-            .then(response => response.json())
-            .then(data => {
-                displayReports(data.reports || []);
-            })
-            .catch(error => {
-                console.error('Error loading reports:', error);
-                showError('Failed to load reports');
-            });
+    for (let [key, value] of formData.entries()) {
+        if (value) {
+            params.append(key, value);
+        }
     }
     
-    function displayReports(reports) {
-        const reportsList = document.getElementById('reportsList');
-        
-        if (reports.length === 0) {
-            reportsList.innerHTML = `
-                <div class="text-center text-muted">
-                    <i class="fas fa-file-alt fa-3x mb-3"></i>
-                    <p>No reports found</p>
-                    <p class="small">Run some scans to generate reports</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '<div class="table-responsive"><table class="table table-hover">';
-        html += `
-            <thead class="table-light">
-                <tr>
-                    <th>Scan ID</th>
-                    <th>Image</th>
-                    <th>Status</th>
-                    <th>Vulnerabilities</th>
-                    <th>Scan Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        reports.forEach(report => {
-            const statusClass = {
-                'SUCCESS': 'text-success',
-                'FAILED': 'text-danger',
-                'IN_PROGRESS': 'text-warning'
-            }[report.scan_status] || 'text-muted';
+    fetch(`/reports/list?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('reportsTable');
+            const emptyState = document.getElementById('emptyState');
             
-            html += `
+            if (data.error) {
+                if (data.error.includes('No group selected')) {
+                    tbody.innerHTML = '';
+                    emptyState.style.display = 'block';
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-8">
+                                <i class="fas fa-exclamation-triangle text-2xl text-red-600 mb-2"></i>
+                                <p class="text-red-600">Error loading reports: ${data.error}</p>
+                            </td>
+                        </tr>
+                    `;
+                }
+                return;
+            }
+            
+            if (!data.reports || data.reports.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = data.reports.map(report => `
                 <tr>
-                    <td><code>${report.id}</code></td>
-                    <td>${report.image_name}:${report.image_tag}</td>
-                    <td><span class="${statusClass} fw-bold">${report.scan_status}</span></td>
                     <td>
-                        <span class="badge bg-danger">${report.critical_count}</span>
-                        <span class="badge bg-warning">${report.high_count}</span>
-                        <span class="badge bg-info">${report.medium_count}</span>
-                        <span class="badge bg-success">${report.low_count}</span>
+                        <div class="font-medium text-gray-900">${report.image_name}</div>
+                        <div class="text-sm text-gray-500">${report.image_tag}</div>
                     </td>
-                    <td>${new Date(report.scan_timestamp).toLocaleString()}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="viewReport(${report.id})">
-                            <i class="fas fa-eye me-1"></i>View
-                        </button>
-                        <button class="btn btn-sm btn-outline-success" onclick="downloadReport(${report.id})">
-                            <i class="fas fa-download me-1"></i>Download
-                        </button>
+                        <span class="badge ${report.scan_status === 'SUCCESS' ? 'bg-success' : 
+                                            report.scan_status === 'FAILED' ? 'bg-danger' : 'bg-warning'}">
+                            ${report.scan_status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="text-sm">
+                            <div class="flex gap-2 flex-wrap">
+                                ${report.critical_count > 0 ? `<span class="text-red-600 font-medium">${report.critical_count} Critical</span>` : ''}
+                                ${report.high_count > 0 ? `<span class="text-orange-600 font-medium">${report.high_count} High</span>` : ''}
+                                ${report.medium_count > 0 ? `<span class="text-blue-600 font-medium">${report.medium_count} Medium</span>` : ''}
+                                ${report.low_count > 0 ? `<span class="text-green-600 font-medium">${report.low_count} Low</span>` : ''}
+                                ${report.total_vulnerabilities === 0 ? '<span class="text-gray-500">No vulnerabilities</span>' : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-sm text-gray-900">${new Date(report.scan_timestamp).toLocaleDateString()}</div>
+                        <div class="text-xs text-gray-500">${new Date(report.scan_timestamp).toLocaleTimeString()}</div>
+                    </td>
+                    <td>
+                        <div class="text-sm text-gray-900">${report.scan_duration_seconds || 0}s</div>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button onclick="viewReport(${report.id})" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button onclick="downloadReport(${report.id})" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error loading reports:', error);
+            document.getElementById('reportsTable').innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-2xl text-red-600 mb-2"></i>
+                        <p class="text-red-600">Failed to load reports</p>
                     </td>
                 </tr>
             `;
         });
-        
-        html += '</tbody></table></div>';
-        reportsList.innerHTML = html;
-    }
-    
-    function viewReport(reportId) {
-        fetch(`/reports/${reportId}`)
-            .then(response => response.json())
-            .then(data => {
-                const modalBody = document.getElementById('reportModalBody');
-                modalBody.innerHTML = generateReportHTML(data);
-                new bootstrap.Modal(document.getElementById('reportDetailsModal')).show();
-            })
-            .catch(error => {
-                console.error('Error loading report:', error);
-                alert('Error loading report details');
-            });
-    }
-    
-    function downloadReport(reportId) {
-        window.open(`/reports/${reportId}/download`, '_blank');
-    }
-    
-    function exportAllReports() {
-        const formData = new FormData(reportFilters);
-        const params = new URLSearchParams(formData);
-        window.open(`/reports/export?${params.toString()}`, '_blank');
-    }
-    
-    function generateReportHTML(data) {
-        let html = `
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h6>Scan Information</h6>
-                    <p><strong>Image:</strong> ${data.scan.image_name}:${data.scan.image_tag}</p>
-                    <p><strong>Scan ID:</strong> ${data.scan.id}</p>
-                    <p><strong>Status:</strong> ${data.scan.scan_status}</p>
-                    <p><strong>Duration:</strong> ${data.scan.scan_duration_seconds} seconds</p>
-                    <p><strong>Scanner:</strong> ${data.scan.scanner_type} ${data.scan.scanner_version}</p>
-                </div>
-                <div class="col-md-6">
-                    <h6>Vulnerability Summary</h6>
-                    <p><strong>Total:</strong> ${data.scan.total_vulnerabilities}</p>
-                    <p><strong>Critical:</strong> ${data.scan.critical_count}</p>
-                    <p><strong>High:</strong> ${data.scan.high_count}</p>
-                    <p><strong>Medium:</strong> ${data.scan.medium_count}</p>
-                    <p><strong>Low:</strong> ${data.scan.low_count}</p>
-                </div>
-            </div>
-        `;
-        
-        if (data.vulnerabilities && data.vulnerabilities.length > 0) {
-            html += `
-                <h6>Vulnerabilities Found</h6>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>CVE ID</th>
-                                <th>Severity</th>
-                                <th>Package</th>
-                                <th>Fixed Version</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-            
-            data.vulnerabilities.forEach(vuln => {
-                const severityClass = {
-                    'CRITICAL': 'text-danger',
-                    'HIGH': 'text-warning',
-                    'MEDIUM': 'text-info',
-                    'LOW': 'text-success'
-                }[vuln.severity] || 'text-muted';
-                
-                html += `
-                    <tr>
-                        <td><code>${vuln.cve_id}</code></td>
-                        <td><span class="${severityClass} fw-bold">${vuln.severity}</span></td>
-                        <td>${vuln.package_name} ${vuln.package_version}</td>
-                        <td>${vuln.fixed_version || 'N/A'}</td>
-                        <td>${vuln.description.substring(0, 100)}${vuln.description.length > 100 ? '...' : ''}</td>
-                    </tr>
-                `;
-            });
-            
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        } else {
-            html += '<div class="alert alert-success">No vulnerabilities found!</div>';
-        }
-        
-        return html;
-    }
-    
-    function showError(message) {
-        const reportsList = document.getElementById('reportsList');
-        reportsList.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>${message}
-            </div>
-        `;
-    }
+}
+
+// Clear filters
+function clearFilters() {
+    document.getElementById('filterForm').reset();
+    loadReports();
+}
+
+// Handle filter form submission
+document.getElementById('filterForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    loadReports();
+});
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadReports();
 });
 </script>
 {% endblock %}

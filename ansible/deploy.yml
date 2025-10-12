@@ -1,0 +1,209 @@
+---
+# Ansible playbook for DockSafe deployment
+- name: Deploy DockSafe Application
+  hosts: all
+  become: yes
+  vars:
+    app_name: docksafe
+    app_user: docksafe
+    app_dir: /opt/{{ app_name }}
+    docker_compose_file: docker-compose.prod.yml
+    environment: production
+
+  tasks:
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+      when: ansible_os_family == "Debian"
+
+    - name: Install required packages
+      package:
+        name:
+          - docker.io
+          - docker-compose
+          - python3-pip
+          - git
+          - curl
+          - wget
+        state: present
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create application user
+      user:
+        name: "{{ app_user }}"
+        system: yes
+        shell: /bin/bash
+        home: "{{ app_dir }}"
+        create_home: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ app_user }}"
+        groups: docker
+        append: yes
+
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Copy application files
+      copy:
+        src: "{{ item }}"
+        dest: "{{ app_dir }}/{{ item }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0644'
+      with_items:
+        - Dockerfile
+        - docker-compose.prod.yml
+        - requirements.txt
+        - run.py
+        - nginx.conf
+
+    - name: Copy application source code
+      synchronize:
+        src: "app/"
+        dest: "{{ app_dir }}/app/"
+        delete: yes
+        recursive: yes
+      become_user: "{{ app_user }}"
+
+    - name: Create environment file
+      template:
+        src: env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0600'
+
+    - name: Create SSL directory
+      file:
+        path: "{{ app_dir }}/ssl"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0700'
+
+    - name: Generate self-signed SSL certificate
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048
+        -keyout {{ app_dir }}/ssl/key.pem
+        -out {{ app_dir }}/ssl/cert.pem
+        -subj "/C=US/ST=State/L=City/O=Organization/CN={{ ansible_fqdn }}"
+      args:
+        creates: "{{ app_dir }}/ssl/cert.pem"
+
+    - name: Pull Docker images
+      docker_compose:
+        project_src: "{{ app_dir }}"
+        files:
+          - "{{ docker_compose_file }}"
+        pull: yes
+      become_user: "{{ app_user }}"
+
+    - name: Start DockSafe services
+      docker_compose:
+        project_src: "{{ app_dir }}"
+        files:
+          - "{{ docker_compose_file }}"
+        state: present
+        recreate: always
+      become_user: "{{ app_user }}"
+
+    - name: Wait for application to be ready
+      uri:
+        url: "http://localhost/health"
+        method: GET
+        status_code: 200
+      retries: 30
+      delay: 10
+
+    - name: Run database migrations
+      command: >
+        docker-compose -f {{ docker_compose_file }}
+        exec -T docksafe-app flask db upgrade
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: "{{ app_user }}"
+
+    - name: Create systemd service for DockSafe
+      template:
+        src: docksafe.service.j2
+        dest: /etc/systemd/system/docksafe.service
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start DockSafe service
+      systemd:
+        name: docksafe
+        enabled: yes
+        state: started
+
+    - name: Setup log rotation
+      template:
+        src: docksafe.logrotate.j2
+        dest: /etc/logrotate.d/docksafe
+        mode: '0644'
+
+    - name: Install monitoring tools
+      package:
+        name:
+          - htop
+          - iotop
+          - nethogs
+        state: present
+
+    - name: Configure firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      with_items:
+        - "22"    # SSH
+        - "80"    # HTTP
+        - "443"   # HTTPS
+        - "5000"  # App (if direct access needed)
+
+    - name: Enable firewall
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+
+    - name: Setup backup script
+      template:
+        src: backup.sh.j2
+        dest: "{{ app_dir }}/backup.sh"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Setup cron job for backups
+      cron:
+        name: "DockSafe backup"
+        job: "{{ app_dir }}/backup.sh"
+        minute: "0"
+        hour: "2"
+        user: "{{ app_user }}"
+
+    - name: Display deployment information
+      debug:
+        msg:
+          - "DockSafe deployed successfully!"
+          - "Application URL: http://{{ ansible_fqdn }}"
+          - "Application directory: {{ app_dir }}"
+          - "Logs: docker-compose -f {{ docker_compose_file }} logs -f"
+          - "Status: systemctl status docksafe"

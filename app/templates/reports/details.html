@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}DockSafe - Report Details{% endblock %}
+{% block page_title %}Report Details{% endblock %}
+
+{% block content %}
+{% if error %}
+    <div class="card">
+        <div class="card-body text-center py-12">
+            <i class="fas fa-exclamation-triangle text-6xl text-red-600 mb-4"></i>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Error</h1>
+            <p class="text-gray-600 mb-6">{{ error }}</p>
+            <a href="{{ url_for('reports.index') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Reports
+            </a>
+        </div>
+    </div>
+{% else %}
+    <!-- Report Header -->
+    <div class="mb-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-4">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Scan Report</h1>
+                    <p class="text-lg text-gray-600">{{ scan.image_name }}:{{ scan.image_tag }}</p>
+                </div>
+                
+                <!-- Scan Status -->
+                <div class="flex items-center gap-4 mb-4">
+                    <span class="badge {{ 'bg-success' if scan.scan_status == 'SUCCESS' else 'bg-danger' if scan.scan_status == 'FAILED' else 'bg-warning' }}">
+                        {{ scan.scan_status }}
+                    </span>
+                    <span class="text-gray-500">
+                        <i class="fas fa-clock mr-1"></i>
+                        {{ scan.scan_timestamp.strftime('%B %d, %Y at %I:%M %p') if scan.scan_timestamp else 'Unknown' }}
+                    </span>
+                    <span class="text-gray-500">
+                        <i class="fas fa-stopwatch mr-1"></i>
+                        {{ scan.scan_duration_seconds or 0 }}s
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vulnerability Statistics -->
+    <div class="stats-grid mb-8">
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Critical</h3>
+                <div class="stat-icon danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <p class="stat-value">{{ scan.critical_count or 0 }}</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((scan.critical_count or 0) / (scan.total_vulnerabilities or 1)) * 100 }}%"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">High</h3>
+                <div class="stat-icon warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+            </div>
+            <p class="stat-value">{{ scan.high_count or 0 }}</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((scan.high_count or 0) / (scan.total_vulnerabilities or 1)) * 100 }}%"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Medium</h3>
+                <div class="stat-icon info">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+            </div>
+            <p class="stat-value">{{ scan.medium_count or 0 }}</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((scan.medium_count or 0) / (scan.total_vulnerabilities or 1)) * 100 }}%"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Low</h3>
+                <div class="stat-icon success">
+                    <i class="fas fa-info"></i>
+                </div>
+            </div>
+            <p class="stat-value">{{ scan.low_count or 0 }}</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((scan.low_count or 0) / (scan.total_vulnerabilities or 1)) * 100 }}%"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Total</h3>
+                <div class="stat-icon primary">
+                    <i class="fas fa-list"></i>
+                </div>
+            </div>
+            <p class="stat-value">{{ scan.total_vulnerabilities or 0 }}</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vulnerabilities Table -->
+    <div class="card">
+        <div class="card-header">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-semibold mb-0">
+                    <i class="fas fa-bug text-blue-600 mr-2"></i>
+                    Vulnerabilities
+                    {% if pagination %}
+                        <span class="text-sm font-normal text-gray-500">
+                            ({{ pagination.total }} total)
+                        </span>
+                    {% endif %}
+                </h2>
+                
+                <!-- Severity Filter -->
+                <div class="flex items-center gap-2">
+                    <label for="severityFilter" class="text-sm font-medium text-gray-700">Filter by severity:</label>
+                    <select id="severityFilter" class="form-control form-control-sm" onchange="filterBySeverity(this.value)">
+                        <option value="">All</option>
+                        <option value="CRITICAL" {% if current_severity == 'CRITICAL' %}selected{% endif %}>Critical</option>
+                        <option value="HIGH" {% if current_severity == 'HIGH' %}selected{% endif %}>High</option>
+                        <option value="MEDIUM" {% if current_severity == 'MEDIUM' %}selected{% endif %}>Medium</option>
+                        <option value="LOW" {% if current_severity == 'LOW' %}selected{% endif %}>Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if vulnerabilities %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>CVE ID</th>
+                                <th>Severity</th>
+                                <th>Package</th>
+                                <th>Version</th>
+                                <th>Fixed Version</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vuln in vulnerabilities %}
+                            <tr>
+                                <td>
+                                    <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ vuln.cve_id }}" 
+                                       target="_blank" 
+                                       class="text-blue-600 hover:text-blue-800 font-medium">
+                                        {{ vuln.cve_id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge {{ 'bg-danger' if vuln.severity == 'CRITICAL' else 
+                                                        'bg-warning' if vuln.severity == 'HIGH' else 
+                                                        'bg-info' if vuln.severity == 'MEDIUM' else 'bg-success' }}">
+                                        {{ vuln.severity }}
+                                    </span>
+                                </td>
+                                <td class="font-medium">{{ vuln.package_name }}</td>
+                                <td class="text-gray-600">{{ vuln.package_version }}</td>
+                                <td class="text-gray-600">{{ vuln.fixed_version or 'N/A' }}</td>
+                                <td class="text-sm text-gray-700 max-w-md">
+                                    {{ vuln.description[:100] }}{% if vuln.description|length > 100 %}...{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination Controls -->
+                {% if pagination and pagination.pages > 1 %}
+                <div class="pagination-container p-4 border-t">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-600">
+                            Showing {{ pagination.per_page * (pagination.page - 1) + 1 }} to 
+                            {{ pagination.per_page * pagination.page if pagination.page < pagination.pages else pagination.total }} 
+                            of {{ pagination.total }} vulnerabilities
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <!-- Previous Page -->
+                            {% if pagination.has_prev %}
+                                <a href="{{ url_for('reports.report_details', report_id=scan.id, page=pagination.prev_num, severity=current_severity) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-chevron-left mr-1"></i>
+                                    Previous
+                                </a>
+                            {% else %}
+                                <span class="btn btn-sm btn-outline-secondary disabled">
+                                    <i class="fas fa-chevron-left mr-1"></i>
+                                    Previous
+                                </span>
+                            {% endif %}
+                            
+                            <!-- Page Numbers -->
+                            {% for page_num in pagination.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != pagination.page %}
+                                        <a href="{{ url_for('reports.report_details', report_id=scan.id, page=page_num, severity=current_severity) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            {{ page_num }}
+                                        </a>
+                                    {% else %}
+                                        <span class="btn btn-sm btn-primary">{{ page_num }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="btn btn-sm btn-outline-secondary disabled">...</span>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <!-- Next Page -->
+                            {% if pagination.has_next %}
+                                <a href="{{ url_for('reports.report_details', report_id=scan.id, page=pagination.next_num, severity=current_severity) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    Next
+                                    <i class="fas fa-chevron-right ml-1"></i>
+                                </a>
+                            {% else %}
+                                <span class="btn btn-sm btn-outline-secondary disabled">
+                                    Next
+                                    <i class="fas fa-chevron-right ml-1"></i>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-check-circle text-6xl text-green-600 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Vulnerabilities Found</h3>
+                    <p class="text-gray-600">This image appears to be secure with no known vulnerabilities.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Scan Details -->
+    <div class="card mt-8">
+        <div class="card-header">
+            <h2 class="text-xl font-semibold mb-0">
+                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                Scan Details
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Image Information</h3>
+                    <dl class="space-y-2">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Image Name:</dt>
+                            <dd class="font-medium">{{ scan.image_name }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Image Tag:</dt>
+                            <dd class="font-medium">{{ scan.image_tag }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Scanner Type:</dt>
+                            <dd class="font-medium">{{ scan.scanner_type }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Scanner Version:</dt>
+                            <dd class="font-medium">{{ scan.scanner_version or 'Unknown' }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Scan Information</h3>
+                    <dl class="space-y-2">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Scan ID:</dt>
+                            <dd class="font-medium">{{ scan.id }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Scan Status:</dt>
+                            <dd class="font-medium">
+                                <span class="badge {{ 'bg-success' if scan.scan_status == 'SUCCESS' else 'bg-danger' if scan.scan_status == 'FAILED' else 'bg-warning' }}">
+                                    {{ scan.scan_status }}
+                                </span>
+                            </dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Scan Duration:</dt>
+                            <dd class="font-medium">{{ scan.scan_duration_seconds or 0 }} seconds</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Scan Date:</dt>
+                            <dd class="font-medium">{{ scan.scan_timestamp.strftime('%B %d, %Y at %I:%M %p') if scan.scan_timestamp else 'Unknown' }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+// Download report function
+function downloadReport(scanId) {
+    fetch(`/reports/${scanId}/download`)
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            }
+            throw new Error('Download failed');
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `scan_report_${scanId}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error('Download error:', error);
+            alert('Failed to download report');
+        });
+}
+
+// Severity filter function
+function filterBySeverity(severity) {
+    const url = new URL(window.location);
+    if (severity) {
+        url.searchParams.set('severity', severity);
+    } else {
+        url.searchParams.delete('severity');
+    }
+    url.searchParams.delete('page'); // Reset to page 1 when filtering
+    window.location.href = url.toString();
+}
+</script>
+{% endblock %}

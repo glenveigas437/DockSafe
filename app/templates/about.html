@@ -1,286 +1,312 @@
 {% extends "base.html" %}
 
 {% block title %}DockSafe - About{% endblock %}
+{% block page_title %}About DockSafe{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <!-- About Header -->
-            <div class="text-center mb-5">
-                <h1 class="display-5 fw-bold text-primary">
-                    <i class="fas fa-info-circle me-3"></i>About DockSafe
-                </h1>
-                <p class="lead text-muted">
-                    Container Image Vulnerability Scanner with Reporting
+<!-- About Header -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-body text-center py-12">
+            <div class="mb-6">
+                <i class="fas fa-shield-alt text-6xl text-blue-600 mb-6"></i>
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">About DockSafe</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    DockSafe is a comprehensive container image vulnerability scanner designed to help organizations 
+                    secure their containerized applications with automated scanning, detailed reporting, and seamless CI/CD integration.
                 </p>
             </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Project Overview -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-project-diagram me-2"></i>Project Overview
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-3">
-                        <strong>DockSafe</strong> is an automated vulnerability scanner designed to secure container images 
-                        before they reach production. With the rise in containerized applications, ensuring the security 
-                        of container images is critical to prevent vulnerabilities from reaching production environments.
+<!-- Mission Statement -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <p class="text-lg text-gray-600 mb-4">
+                To provide developers and security teams with powerful, easy-to-use tools for identifying and 
+                mitigating security vulnerabilities in container images before they reach production.
+            </p>
+            <p class="text-gray-600">
+                We believe that security should be integrated into the development process, not bolted on afterward. 
+                DockSafe makes it easy to scan container images, track vulnerabilities, and maintain security 
+                compliance across your entire containerized infrastructure.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Key Features -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-2xl font-semibold mb-0">Key Features</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Automated Scanning</h3>
+                    <p class="text-gray-600">
+                        Scan container images automatically using industry-standard tools like Trivy to identify known vulnerabilities.
                     </p>
-                    <p class="mb-3">
-                        This project addresses the common problem where DevOps teams lack automated tools that integrate 
-                        seamlessly into their CI/CD pipelines, resulting in manual checks or no security checks at all.
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Real-time Analytics</h3>
+                    <p class="text-gray-600">
+                        Monitor security trends with comprehensive dashboards and detailed vulnerability reports.
                     </p>
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-bullseye me-2"></i>Key Goals</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success me-2"></i>Automated vulnerability scanning</li>
-                                <li><i class="fas fa-check text-success me-2"></i>CI/CD pipeline integration</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Real-time notifications</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Historical vulnerability tracking</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-tools me-2"></i>Technologies Used</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-code text-primary me-2"></i>Python (Flask)</li>
-                                <li><i class="fas fa-shield-alt text-warning me-2"></i>Trivy Scanner</li>
-                                <li><i class="fas fa-database text-info me-2"></i>SQLite Database</li>
-                                <li><i class="fas fa-cloud text-success me-2"></i>Docker Integration</li>
-                            </ul>
-                        </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-rocket text-2xl text-purple-600"></i>
                     </div>
-                </div>
-            </div>
-
-            <!-- Features -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-star me-2"></i>Features
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-search fa-2x text-primary"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6>Vulnerability Scanning</h6>
-                                    <p class="text-muted mb-0">
-                                        Automatically scan Docker images for known vulnerabilities using Trivy scanner.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-chart-line fa-2x text-success"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6>Dashboard & Analytics</h6>
-                                    <p class="text-muted mb-0">
-                                        Visual dashboard showing scan statistics and vulnerability trends over time.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-file-alt fa-2x text-info"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6>Report Generation</h6>
-                                    <p class="text-muted mb-0">
-                                        Generate detailed vulnerability reports with filtering and export capabilities.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-bell fa-2x text-warning"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6>Notifications</h6>
-                                    <p class="text-muted mb-0">
-                                        Real-time notifications via Slack, Teams, and email for critical vulnerabilities.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-code-branch fa-2x text-danger"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6>CI/CD Integration</h6>
-                                    <p class="text-muted mb-0">
-                                        Seamless integration with Jenkins, GitHub Actions, and GitLab CI pipelines.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0">
-                                    <i class="fas fa-history fa-2x text-secondary"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6>Historical Tracking</h6>
-                                    <p class="text-muted mb-0">
-                                        Track vulnerability history and monitor security improvements over time.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- How to Use -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-play-circle me-2"></i>How to Use
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="text-center">
-                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <span class="h4 mb-0">1</span>
-                                </div>
-                                <h6>Scan Images</h6>
-                                <p class="text-muted small">
-                                    Use the Scanner page to scan your Docker images for vulnerabilities. 
-                                    Enter the image name and tag, then click "Start Scan".
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="text-center">
-                                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <span class="h4 mb-0">2</span>
-                                </div>
-                                <h6>Review Results</h6>
-                                <p class="text-muted small">
-                                    Check the Dashboard for scan statistics and recent activity. 
-                                    View detailed vulnerability information and recommendations.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="text-center">
-                                <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <span class="h4 mb-0">3</span>
-                                </div>
-                                <h6>Generate Reports</h6>
-                                <p class="text-muted small">
-                                    Create detailed reports from the Reports page. 
-                                    Filter by date, severity, and status. Export for sharing.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CI/CD Integration -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">
-                        <i class="fas fa-cogs me-2"></i>CI/CD Integration
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-3">
-                        DockSafe integrates seamlessly with popular CI/CD platforms to automatically scan images 
-                        during the build process and prevent vulnerable images from reaching production.
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">CI/CD Integration</h3>
+                    <p class="text-gray-600">
+                        Seamlessly integrate security scanning into your CI/CD pipelines for automated vulnerability detection.
                     </p>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100 border-0 bg-light">
-                                <div class="card-body text-center">
-                                    <i class="fab fa-github fa-3x text-dark mb-3"></i>
-                                    <h6>GitHub Actions</h6>
-                                    <p class="small text-muted">
-                                        Use the provided workflow template to integrate scanning into your GitHub Actions pipeline.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100 border-0 bg-light">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-server fa-3x text-dark mb-3"></i>
-                                    <h6>Jenkins</h6>
-                                    <p class="small text-muted">
-                                        Integrate with Jenkins using the provided Jenkinsfile template for automated scanning.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100 border-0 bg-light">
-                                <div class="card-body text-center">
-                                    <i class="fab fa-gitlab fa-3x text-dark mb-3"></i>
-                                    <h6>GitLab CI</h6>
-                                    <p class="small text-muted">
-                                        Use GitLab CI/CD with the provided configuration for automated vulnerability scanning.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bell text-2xl text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Smart Notifications</h3>
+                    <p class="text-gray-600">
+                        Get instant alerts for critical vulnerabilities via Slack, Teams, or email notifications.
+                    </p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-2xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Team Collaboration</h3>
+                    <p class="text-gray-600">
+                        Organize scans by teams and groups with role-based access control and shared dashboards.
+                    </p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-alt text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Comprehensive Reports</h3>
+                    <p class="text-gray-600">
+                        Generate detailed security reports with vulnerability details, remediation guidance, and compliance data.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technology Stack -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-2xl font-semibold mb-0">Technology Stack</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Backend</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>Flask:</strong> Python web framework
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>SQLAlchemy:</strong> Database ORM
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>Trivy:</strong> Container vulnerability scanner
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>JWT:</strong> Secure authentication
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Frontend</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>Tailwind CSS:</strong> Utility-first CSS framework
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>Chart.js:</strong> Interactive charts and graphs
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>Font Awesome:</strong> Icon library
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-600 mr-2"></i>
+                            <strong>Poppins:</strong> Modern typography
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security Standards -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-2xl font-semibold mb-0">Security Standards</h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-shield-alt text-xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">CVE Database</h3>
+                    <p class="text-gray-600 text-sm">
+                        Comprehensive vulnerability database with real-time updates
+                    </p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-certificate text-xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Industry Standards</h3>
+                    <p class="text-gray-600 text-sm">
+                        Follows OWASP and NIST security guidelines
+                    </p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-lock text-xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Secure by Design</h3>
+                    <p class="text-gray-600 text-sm">
+                        Built with security best practices and encryption
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Getting Started -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-2xl font-semibold mb-0">Getting Started</h2>
+        </div>
+        <div class="card-body">
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">1</div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Create a Group</h3>
+                        <p class="text-gray-600">
+                            Start by creating a group to organize your scans. Groups help you manage team access and track security metrics across different projects.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">2</div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Scan Your First Image</h3>
+                        <p class="text-gray-600">
+                            Use the scanner to analyze your first container image. DockSafe supports popular base images like nginx, ubuntu, node, and more.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">3</div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Review Results</h3>
+                        <p class="text-gray-600">
+                            Check the dashboard and reports to understand your security posture. Download detailed reports for compliance and remediation planning.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">4</div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Set Up Notifications</h3>
+                        <p class="text-gray-600">
+                            Configure Slack or email notifications to stay informed about critical vulnerabilities and scan results.
+                        </p>
                     </div>
                 </div>
             </div>
+            
+            <div class="mt-8 text-center">
+                <a href="{{ url_for('scanner.scanner_page') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket mr-2"></i>
+                    Start Scanning Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Project Information -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info me-2"></i>Project Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Version</h6>
-                            <p class="text-muted">1.0.0</p>
-                            
-                            <h6>License</h6>
-                            <p class="text-muted">MIT License</p>
-                            
-                            <h6>Repository</h6>
-                            <p class="text-muted">Container Image Vulnerability Scanner</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Technologies</h6>
-                            <ul class="list-unstyled text-muted">
-                                <li>• Python 3.13</li>
-                                <li>• Flask Web Framework</li>
-                                <li>• Trivy Vulnerability Scanner</li>
-                                <li>• SQLite Database</li>
-                                <li>• Bootstrap 5 UI</li>
-                            </ul>
-                            
-                            <h6>Dependencies</h6>
-                            <p class="text-muted small">
-                                See requirements.txt for complete list of Python dependencies.
-                            </p>
-                        </div>
+<!-- Contact Information -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="text-2xl font-semibold mb-0">Contact & Support</h2>
+    </div>
+    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Need Help?</h3>
+                <p class="text-gray-600 mb-4">
+                    DockSafe is designed to be intuitive and easy to use. If you need assistance or have questions, 
+                    we're here to help you secure your containerized applications.
+                </p>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-envelope text-blue-600"></i>
+                        <span class="text-gray-600">support@docksafe.com</span>
                     </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-globe text-blue-600"></i>
+                        <span class="text-gray-600">www.docksafe.com</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{{ url_for('scanner.scanner_page') }}" class="btn btn-outline-primary w-full">
+                        <i class="fas fa-search mr-2"></i>
+                        Start Scanning
+                    </a>
+                    <a href="{{ url_for('groups.index') }}" class="btn btn-outline-primary w-full">
+                        <i class="fas fa-users mr-2"></i>
+                        Manage Groups
+                    </a>
+                    <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-primary w-full">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        View Dashboard
+                    </a>
                 </div>
             </div>
         </div>

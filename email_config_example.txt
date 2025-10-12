@@ -1,0 +1,32 @@
+# DockSafe Email Configuration
+# Copy this file to .env and fill in your SMTP credentials
+
+# Gmail SMTP Configuration (Recommended)
+DOCSAFE_EMAIL_SMTP_SERVER=smtp.gmail.com
+DOCSAFE_EMAIL_SMTP_PORT=587
+DOCSAFE_EMAIL_USERNAME=noreply.docksafe@gmail.com
+DOCSAFE_EMAIL_PASSWORD=Eszwaq@437
+DOCSAFE_EMAIL_FROM=noreply.docksafe@gmail.com
+DOCSAFE_EMAIL_USE_TLS=true
+
+# Alternative SMTP Providers:
+# 
+# Outlook/Hotmail:
+# DOCSAFE_EMAIL_SMTP_SERVER=smtp-mail.outlook.com
+# DOCSAFE_EMAIL_SMTP_PORT=587
+# 
+# Yahoo:
+# DOCSAFE_EMAIL_SMTP_SERVER=smtp.mail.yahoo.com
+# DOCSAFE_EMAIL_SMTP_PORT=587
+# 
+# Custom SMTP Server:
+# DOCSAFE_EMAIL_SMTP_SERVER=your-smtp-server.com
+# DOCSAFE_EMAIL_SMTP_PORT=587
+# DOCSAFE_EMAIL_USERNAME=your-username
+# DOCSAFE_EMAIL_PASSWORD=your-password
+
+# Other DockSafe Configuration
+SECRET_KEY=your-secret-key-here
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:5000/auth/google/callback

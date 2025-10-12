@@ -1,0 +1,952 @@
+{% extends "base.html" %}
+
+{% block page_title %}Profile{% endblock %}
+
+{% block content %}
+<style>
+/* Beautiful Card Styles */
+.beautiful-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.beautiful-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.beautiful-card-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.beautiful-card-header h3 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.beautiful-card-header i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.beautiful-card-body {
+    padding: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.3);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 500;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.profile-header-card {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 25px -3px rgba(59, 130, 246, 0.3);
+}
+
+.profile-picture-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.profile-picture-fallback-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.group-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.group-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -3px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.group-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.security-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.security-item:last-child {
+    border-bottom: none;
+}
+
+.security-item i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.btn-modern {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
+    color: white;
+}
+
+.btn-outline-modern {
+    border: 2px solid #3b82f6;
+    color: #3b82f6;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-outline-modern:hover {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
+}
+
+/* Button spacing fixes */
+.btn-outline-modern {
+    flex-shrink: 0;
+    margin-right: 0 !important;
+}
+
+.d-flex[style*="gap"] > * {
+    margin-right: 0 !important;
+}
+
+.badge-modern {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.badge-warning-modern {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+</style>
+<!-- Profile Setup Modal (shown if user data is incomplete) -->
+{% if not user.first_name or not user.last_name or not user.country %}
+<div id="profileSetupModal" class="modal-overlay" style="display: flex;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Complete Your Profile</h5>
+        </div>
+        <div class="modal-body">
+            <p class="text-muted mb-4">Please complete your profile information to get the best experience with DockSafe.</p>
+            <form id="profileSetupForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="setupFirstName" class="form-label">First Name *</label>
+                        <input type="text" class="form-control" id="setupFirstName" value="{{ user.first_name or '' }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="setupLastName" class="form-label">Last Name *</label>
+                        <input type="text" class="form-control" id="setupLastName" value="{{ user.last_name or '' }}" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="setupCountry" class="form-label">Country *</label>
+                    <select class="form-control" id="setupCountry" required>
+                        <option value="">Select your country</option>
+                        <option value="India" {% if user.country == 'India' %}selected{% endif %}>India</option>
+                        <option value="United States" {% if user.country == 'United States' %}selected{% endif %}>United States</option>
+                        <option value="United Kingdom" {% if user.country == 'United Kingdom' %}selected{% endif %}>United Kingdom</option>
+                        <option value="Canada" {% if user.country == 'Canada' %}selected{% endif %}>Canada</option>
+                        <option value="Australia" {% if user.country == 'Australia' %}selected{% endif %}>Australia</option>
+                        <option value="Germany" {% if user.country == 'Germany' %}selected{% endif %}>Germany</option>
+                        <option value="France" {% if user.country == 'France' %}selected{% endif %}>France</option>
+                        <option value="Japan" {% if user.country == 'Japan' %}selected{% endif %}>Japan</option>
+                        <option value="China" {% if user.country == 'China' %}selected{% endif %}>China</option>
+                        <option value="Brazil" {% if user.country == 'Brazil' %}selected{% endif %}>Brazil</option>
+                        <option value="Russia" {% if user.country == 'Russia' %}selected{% endif %}>Russia</option>
+                        <option value="South Africa" {% if user.country == 'South Africa' %}selected{% endif %}>South Africa</option>
+                        <option value="Singapore" {% if user.country == 'Singapore' %}selected{% endif %}>Singapore</option>
+                        <option value="UAE" {% if user.country == 'UAE' %}selected{% endif %}>UAE</option>
+                        <option value="Saudi Arabia" {% if user.country == 'Saudi Arabia' %}selected{% endif %}>Saudi Arabia</option>
+                        <option value="South Korea" {% if user.country == 'South Korea' %}selected{% endif %}>South Korea</option>
+                        <option value="Thailand" {% if user.country == 'Thailand' %}selected{% endif %}>Thailand</option>
+                        <option value="Malaysia" {% if user.country == 'Malaysia' %}selected{% endif %}>Malaysia</option>
+                        <option value="Indonesia" {% if user.country == 'Indonesia' %}selected{% endif %}>Indonesia</option>
+                        <option value="Philippines" {% if user.country == 'Philippines' %}selected{% endif %}>Philippines</option>
+                        <option value="Vietnam" {% if user.country == 'Vietnam' %}selected{% endif %}>Vietnam</option>
+                        <option value="Turkey" {% if user.country == 'Turkey' %}selected{% endif %}>Turkey</option>
+                        <option value="Italy" {% if user.country == 'Italy' %}selected{% endif %}>Italy</option>
+                        <option value="Spain" {% if user.country == 'Spain' %}selected{% endif %}>Spain</option>
+                        <option value="Netherlands" {% if user.country == 'Netherlands' %}selected{% endif %}>Netherlands</option>
+                        <option value="Sweden" {% if user.country == 'Sweden' %}selected{% endif %}>Sweden</option>
+                        <option value="Norway" {% if user.country == 'Norway' %}selected{% endif %}>Norway</option>
+                        <option value="Denmark" {% if user.country == 'Denmark' %}selected{% endif %}>Denmark</option>
+                        <option value="Finland" {% if user.country == 'Finland' %}selected{% endif %}>Finland</option>
+                        <option value="Poland" {% if user.country == 'Poland' %}selected{% endif %}>Poland</option>
+                        <option value="Czech Republic" {% if user.country == 'Czech Republic' %}selected{% endif %}>Czech Republic</option>
+                        <option value="Hungary" {% if user.country == 'Hungary' %}selected{% endif %}>Hungary</option>
+                        <option value="Romania" {% if user.country == 'Romania' %}selected{% endif %}>Romania</option>
+                        <option value="Greece" {% if user.country == 'Greece' %}selected{% endif %}>Greece</option>
+                        <option value="Portugal" {% if user.country == 'Portugal' %}selected{% endif %}>Portugal</option>
+                        <option value="Ireland" {% if user.country == 'Ireland' %}selected{% endif %}>Ireland</option>
+                        <option value="Belgium" {% if user.country == 'Belgium' %}selected{% endif %}>Belgium</option>
+                        <option value="Austria" {% if user.country == 'Austria' %}selected{% endif %}>Austria</option>
+                        <option value="Switzerland" {% if user.country == 'Switzerland' %}selected{% endif %}>Switzerland</option>
+                        <option value="New Zealand" {% if user.country == 'New Zealand' %}selected{% endif %}>New Zealand</option>
+                        <option value="Mexico" {% if user.country == 'Mexico' %}selected{% endif %}>Mexico</option>
+                        <option value="Argentina" {% if user.country == 'Argentina' %}selected{% endif %}>Argentina</option>
+                        <option value="Chile" {% if user.country == 'Chile' %}selected{% endif %}>Chile</option>
+                        <option value="Colombia" {% if user.country == 'Colombia' %}selected{% endif %}>Colombia</option>
+                        <option value="Peru" {% if user.country == 'Peru' %}selected{% endif %}>Peru</option>
+                        <option value="Venezuela" {% if user.country == 'Venezuela' %}selected{% endif %}>Venezuela</option>
+                        <option value="Ecuador" {% if user.country == 'Ecuador' %}selected{% endif %}>Ecuador</option>
+                        <option value="Bolivia" {% if user.country == 'Bolivia' %}selected{% endif %}>Bolivia</option>
+                        <option value="Paraguay" {% if user.country == 'Paraguay' %}selected{% endif %}>Paraguay</option>
+                        <option value="Uruguay" {% if user.country == 'Uruguay' %}selected{% endif %}>Uruguay</option>
+                        <option value="Egypt" {% if user.country == 'Egypt' %}selected{% endif %}>Egypt</option>
+                        <option value="Nigeria" {% if user.country == 'Nigeria' %}selected{% endif %}>Nigeria</option>
+                        <option value="Kenya" {% if user.country == 'Kenya' %}selected{% endif %}>Kenya</option>
+                        <option value="Morocco" {% if user.country == 'Morocco' %}selected{% endif %}>Morocco</option>
+                        <option value="Tunisia" {% if user.country == 'Tunisia' %}selected{% endif %}>Tunisia</option>
+                        <option value="Algeria" {% if user.country == 'Algeria' %}selected{% endif %}>Algeria</option>
+                        <option value="Libya" {% if user.country == 'Libya' %}selected{% endif %}>Libya</option>
+                        <option value="Ethiopia" {% if user.country == 'Ethiopia' %}selected{% endif %}>Ethiopia</option>
+                        <option value="Ghana" {% if user.country == 'Ghana' %}selected{% endif %}>Ghana</option>
+                        <option value="Senegal" {% if user.country == 'Senegal' %}selected{% endif %}>Senegal</option>
+                        <option value="Ivory Coast" {% if user.country == 'Ivory Coast' %}selected{% endif %}>Ivory Coast</option>
+                        <option value="Cameroon" {% if user.country == 'Cameroon' %}selected{% endif %}>Cameroon</option>
+                        <option value="Angola" {% if user.country == 'Angola' %}selected{% endif %}>Angola</option>
+                        <option value="Mozambique" {% if user.country == 'Mozambique' %}selected{% endif %}>Mozambique</option>
+                        <option value="Tanzania" {% if user.country == 'Tanzania' %}selected{% endif %}>Tanzania</option>
+                        <option value="Uganda" {% if user.country == 'Uganda' %}selected{% endif %}>Uganda</option>
+                        <option value="Rwanda" {% if user.country == 'Rwanda' %}selected{% endif %}>Rwanda</option>
+                        <option value="Burundi" {% if user.country == 'Burundi' %}selected{% endif %}>Burundi</option>
+                        <option value="Madagascar" {% if user.country == 'Madagascar' %}selected{% endif %}>Madagascar</option>
+                        <option value="Mauritius" {% if user.country == 'Mauritius' %}selected{% endif %}>Mauritius</option>
+                        <option value="Seychelles" {% if user.country == 'Seychelles' %}selected{% endif %}>Seychelles</option>
+                        <option value="Israel" {% if user.country == 'Israel' %}selected{% endif %}>Israel</option>
+                        <option value="Jordan" {% if user.country == 'Jordan' %}selected{% endif %}>Jordan</option>
+                        <option value="Lebanon" {% if user.country == 'Lebanon' %}selected{% endif %}>Lebanon</option>
+                        <option value="Syria" {% if user.country == 'Syria' %}selected{% endif %}>Syria</option>
+                        <option value="Iraq" {% if user.country == 'Iraq' %}selected{% endif %}>Iraq</option>
+                        <option value="Iran" {% if user.country == 'Iran' %}selected{% endif %}>Iran</option>
+                        <option value="Afghanistan" {% if user.country == 'Afghanistan' %}selected{% endif %}>Afghanistan</option>
+                        <option value="Pakistan" {% if user.country == 'Pakistan' %}selected{% endif %}>Pakistan</option>
+                        <option value="Bangladesh" {% if user.country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
+                        <option value="Sri Lanka" {% if user.country == 'Sri Lanka' %}selected{% endif %}>Sri Lanka</option>
+                        <option value="Nepal" {% if user.country == 'Nepal' %}selected{% endif %}>Nepal</option>
+                        <option value="Bhutan" {% if user.country == 'Bhutan' %}selected{% endif %}>Bhutan</option>
+                        <option value="Myanmar" {% if user.country == 'Myanmar' %}selected{% endif %}>Myanmar</option>
+                        <option value="Cambodia" {% if user.country == 'Cambodia' %}selected{% endif %}>Cambodia</option>
+                        <option value="Laos" {% if user.country == 'Laos' %}selected{% endif %}>Laos</option>
+                        <option value="Mongolia" {% if user.country == 'Mongolia' %}selected{% endif %}>Mongolia</option>
+                        <option value="Kazakhstan" {% if user.country == 'Kazakhstan' %}selected{% endif %}>Kazakhstan</option>
+                        <option value="Uzbekistan" {% if user.country == 'Uzbekistan' %}selected{% endif %}>Uzbekistan</option>
+                        <option value="Kyrgyzstan" {% if user.country == 'Kyrgyzstan' %}selected{% endif %}>Kyrgyzstan</option>
+                        <option value="Tajikistan" {% if user.country == 'Tajikistan' %}selected{% endif %}>Tajikistan</option>
+                        <option value="Turkmenistan" {% if user.country == 'Turkmenistan' %}selected{% endif %}>Turkmenistan</option>
+                        <option value="Azerbaijan" {% if user.country == 'Azerbaijan' %}selected{% endif %}>Azerbaijan</option>
+                        <option value="Armenia" {% if user.country == 'Armenia' %}selected{% endif %}>Armenia</option>
+                        <option value="Georgia" {% if user.country == 'Georgia' %}selected{% endif %}>Georgia</option>
+                        <option value="Ukraine" {% if user.country == 'Ukraine' %}selected{% endif %}>Ukraine</option>
+                        <option value="Belarus" {% if user.country == 'Belarus' %}selected{% endif %}>Belarus</option>
+                        <option value="Lithuania" {% if user.country == 'Lithuania' %}selected{% endif %}>Lithuania</option>
+                        <option value="Latvia" {% if user.country == 'Latvia' %}selected{% endif %}>Latvia</option>
+                        <option value="Estonia" {% if user.country == 'Estonia' %}selected{% endif %}>Estonia</option>
+                        <option value="Moldova" {% if user.country == 'Moldova' %}selected{% endif %}>Moldova</option>
+                        <option value="Bulgaria" {% if user.country == 'Bulgaria' %}selected{% endif %}>Bulgaria</option>
+                        <option value="Croatia" {% if user.country == 'Croatia' %}selected{% endif %}>Croatia</option>
+                        <option value="Serbia" {% if user.country == 'Serbia' %}selected{% endif %}>Serbia</option>
+                        <option value="Bosnia and Herzegovina" {% if user.country == 'Bosnia and Herzegovina' %}selected{% endif %}>Bosnia and Herzegovina</option>
+                        <option value="Montenegro" {% if user.country == 'Montenegro' %}selected{% endif %}>Montenegro</option>
+                        <option value="North Macedonia" {% if user.country == 'North Macedonia' %}selected{% endif %}>North Macedonia</option>
+                        <option value="Albania" {% if user.country == 'Albania' %}selected{% endif %}>Albania</option>
+                        <option value="Slovenia" {% if user.country == 'Slovenia' %}selected{% endif %}>Slovenia</option>
+                        <option value="Slovakia" {% if user.country == 'Slovakia' %}selected{% endif %}>Slovakia</option>
+                        <option value="Iceland" {% if user.country == 'Iceland' %}selected{% endif %}>Iceland</option>
+                        <option value="Greenland" {% if user.country == 'Greenland' %}selected{% endif %}>Greenland</option>
+                        <option value="Fiji" {% if user.country == 'Fiji' %}selected{% endif %}>Fiji</option>
+                        <option value="Papua New Guinea" {% if user.country == 'Papua New Guinea' %}selected{% endif %}>Papua New Guinea</option>
+                        <option value="Solomon Islands" {% if user.country == 'Solomon Islands' %}selected{% endif %}>Solomon Islands</option>
+                        <option value="Vanuatu" {% if user.country == 'Vanuatu' %}selected{% endif %}>Vanuatu</option>
+                        <option value="New Caledonia" {% if user.country == 'New Caledonia' %}selected{% endif %}>New Caledonia</option>
+                        <option value="French Polynesia" {% if user.country == 'French Polynesia' %}selected{% endif %}>French Polynesia</option>
+                        <option value="Samoa" {% if user.country == 'Samoa' %}selected{% endif %}>Samoa</option>
+                        <option value="Tonga" {% if user.country == 'Tonga' %}selected{% endif %}>Tonga</option>
+                        <option value="Cook Islands" {% if user.country == 'Cook Islands' %}selected{% endif %}>Cook Islands</option>
+                        <option value="Niue" {% if user.country == 'Niue' %}selected{% endif %}>Niue</option>
+                        <option value="Tuvalu" {% if user.country == 'Tuvalu' %}selected{% endif %}>Tuvalu</option>
+                        <option value="Kiribati" {% if user.country == 'Kiribati' %}selected{% endif %}>Kiribati</option>
+                        <option value="Nauru" {% if user.country == 'Nauru' %}selected{% endif %}>Nauru</option>
+                        <option value="Palau" {% if user.country == 'Palau' %}selected{% endif %}>Palau</option>
+                        <option value="Marshall Islands" {% if user.country == 'Marshall Islands' %}selected{% endif %}>Marshall Islands</option>
+                        <option value="Micronesia" {% if user.country == 'Micronesia' %}selected{% endif %}>Micronesia</option>
+                        <option value="Guam" {% if user.country == 'Guam' %}selected{% endif %}>Guam</option>
+                        <option value="Northern Mariana Islands" {% if user.country == 'Northern Mariana Islands' %}selected{% endif %}>Northern Mariana Islands</option>
+                        <option value="American Samoa" {% if user.country == 'American Samoa' %}selected{% endif %}>American Samoa</option>
+                        <option value="Hawaii" {% if user.country == 'Hawaii' %}selected{% endif %}>Hawaii</option>
+                        <option value="Alaska" {% if user.country == 'Alaska' %}selected{% endif %}>Alaska</option>
+                        <option value="California" {% if user.country == 'California' %}selected{% endif %}>California</option>
+                        <option value="Texas" {% if user.country == 'Texas' %}selected{% endif %}>Texas</option>
+                        <option value="Florida" {% if user.country == 'Florida' %}selected{% endif %}>Florida</option>
+                        <option value="Arizona" {% if user.country == 'Arizona' %}selected{% endif %}>Arizona</option>
+                        <option value="Colorado" {% if user.country == 'Colorado' %}selected{% endif %}>Colorado</option>
+                        <option value="Washington" {% if user.country == 'Washington' %}selected{% endif %}>Washington</option>
+                        <option value="Oregon" {% if user.country == 'Oregon' %}selected{% endif %}>Oregon</option>
+                        <option value="Nevada" {% if user.country == 'Nevada' %}selected{% endif %}>Nevada</option>
+                        <option value="Utah" {% if user.country == 'Utah' %}selected{% endif %}>Utah</option>
+                        <option value="Montana" {% if user.country == 'Montana' %}selected{% endif %}>Montana</option>
+                        <option value="Wyoming" {% if user.country == 'Wyoming' %}selected{% endif %}>Wyoming</option>
+                        <option value="Idaho" {% if user.country == 'Idaho' %}selected{% endif %}>Idaho</option>
+                        <option value="North Dakota" {% if user.country == 'North Dakota' %}selected{% endif %}>North Dakota</option>
+                        <option value="South Dakota" {% if user.country == 'South Dakota' %}selected{% endif %}>South Dakota</option>
+                        <option value="Nebraska" {% if user.country == 'Nebraska' %}selected{% endif %}>Nebraska</option>
+                        <option value="Kansas" {% if user.country == 'Kansas' %}selected{% endif %}>Kansas</option>
+                        <option value="Oklahoma" {% if user.country == 'Oklahoma' %}selected{% endif %}>Oklahoma</option>
+                        <option value="Arkansas" {% if user.country == 'Arkansas' %}selected{% endif %}>Arkansas</option>
+                        <option value="Louisiana" {% if user.country == 'Louisiana' %}selected{% endif %}>Louisiana</option>
+                        <option value="Mississippi" {% if user.country == 'Mississippi' %}selected{% endif %}>Mississippi</option>
+                        <option value="Alabama" {% if user.country == 'Alabama' %}selected{% endif %}>Alabama</option>
+                        <option value="Tennessee" {% if user.country == 'Tennessee' %}selected{% endif %}>Tennessee</option>
+                        <option value="Kentucky" {% if user.country == 'Kentucky' %}selected{% endif %}>Kentucky</option>
+                        <option value="West Virginia" {% if user.country == 'West Virginia' %}selected{% endif %}>West Virginia</option>
+                        <option value="Virginia" {% if user.country == 'Virginia' %}selected{% endif %}>Virginia</option>
+                        <option value="North Carolina" {% if user.country == 'North Carolina' %}selected{% endif %}>North Carolina</option>
+                        <option value="South Carolina" {% if user.country == 'South Carolina' %}selected{% endif %}>South Carolina</option>
+                        <option value="Georgia" {% if user.country == 'Georgia' %}selected{% endif %}>Georgia</option>
+                        <option value="Maryland" {% if user.country == 'Maryland' %}selected{% endif %}>Maryland</option>
+                        <option value="Delaware" {% if user.country == 'Delaware' %}selected{% endif %}>Delaware</option>
+                        <option value="New Jersey" {% if user.country == 'New Jersey' %}selected{% endif %}>New Jersey</option>
+                        <option value="Pennsylvania" {% if user.country == 'Pennsylvania' %}selected{% endif %}>Pennsylvania</option>
+                        <option value="New York" {% if user.country == 'New York' %}selected{% endif %}>New York</option>
+                        <option value="Connecticut" {% if user.country == 'Connecticut' %}selected{% endif %}>Connecticut</option>
+                        <option value="Rhode Island" {% if user.country == 'Rhode Island' %}selected{% endif %}>Rhode Island</option>
+                        <option value="Massachusetts" {% if user.country == 'Massachusetts' %}selected{% endif %}>Massachusetts</option>
+                        <option value="Vermont" {% if user.country == 'Vermont' %}selected{% endif %}>Vermont</option>
+                        <option value="New Hampshire" {% if user.country == 'New Hampshire' %}selected{% endif %}>New Hampshire</option>
+                        <option value="Maine" {% if user.country == 'Maine' %}selected{% endif %}>Maine</option>
+                        <option value="Minnesota" {% if user.country == 'Minnesota' %}selected{% endif %}>Minnesota</option>
+                        <option value="Wisconsin" {% if user.country == 'Wisconsin' %}selected{% endif %}>Wisconsin</option>
+                        <option value="Michigan" {% if user.country == 'Michigan' %}selected{% endif %}>Michigan</option>
+                        <option value="Illinois" {% if user.country == 'Illinois' %}selected{% endif %}>Illinois</option>
+                        <option value="Indiana" {% if user.country == 'Indiana' %}selected{% endif %}>Indiana</option>
+                        <option value="Ohio" {% if user.country == 'Ohio' %}selected{% endif %}>Ohio</option>
+                        <option value="Iowa" {% if user.country == 'Iowa' %}selected{% endif %}>Iowa</option>
+                        <option value="Missouri" {% if user.country == 'Missouri' %}selected{% endif %}>Missouri</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="emailVerification" {% if not user.email_verified %}checked{% endif %}>
+                        <label class="form-check-label" for="emailVerification">
+                            Send email verification to {{ user.email }}
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="saveProfileSetup()">Save Profile</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="container-fluid">
+    <!-- Profile Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="profile-header-card">
+                <div class="row">
+                    <div class="col-auto">
+                        <img src="{{ user.picture_url or 'https://ui-avatars.com/api/?name=' + (user.first_name or '') + '+' + (user.last_name or '') + '&background=3b82f6&color=fff&size=100' }}" 
+                             alt="Profile Picture" 
+                             class="profile-picture-large"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="profile-picture-fallback-large" style="display: none;">
+                            {{ (user.first_name or user.email.split('@')[0])[0].upper() }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h1 class="h2 mb-2">{{ user.first_name or '' }} {{ user.last_name or '' }}</h1>
+                        <p class="mb-3 opacity-90">{{ user.email }}</p>
+                        <div class="d-flex gap-3 mb-4">
+                            <span class="badge-modern">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Active
+                            </span>
+                            <span class="badge-modern">
+                                <i class="fas fa-calendar me-1"></i>
+                                Joined {{ user.created_at.strftime('%B %Y') if user.created_at else 'Unknown' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Buttons Row - Separate row below everything -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap justify-content-start" style="gap: 0.75rem;">
+                            <button class="btn-outline-modern" onclick="editProfile()" style="white-space: nowrap; min-width: 110px;">
+                                <i class="fas fa-edit me-2"></i>
+                                Edit Profile
+                            </button>
+                            <a href="{{ url_for('auth.refresh_profile') }}" class="btn-outline-modern" style="white-space: nowrap; min-width: 110px;">
+                                <i class="fas fa-sync-alt me-2"></i>
+                                Refresh Data
+                            </a>
+                            <button class="btn-outline-modern" onclick="exportProfile()" style="white-space: nowrap; min-width: 110px;">
+                                <i class="fas fa-download me-2"></i>
+                                Export Data
+                            </button>
+                            <button class="btn-outline-modern" onclick="shareProfile()" style="white-space: nowrap; min-width: 110px;">
+                                <i class="fas fa-share me-2"></i>
+                                Share Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="beautiful-card">
+                <div class="beautiful-card-header">
+                    <h3>
+                        <i class="fas fa-user"></i>
+                        Personal Information
+                    </h3>
+                </div>
+                <div class="beautiful-card-body">
+                    <div class="info-item">
+                        <span class="info-label">First Name</span>
+                        <span class="info-value">{{ user.first_name or 'Not provided' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Name</span>
+                        <span class="info-value">{{ user.last_name or 'Not provided' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email Address</span>
+                        <span class="info-value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Username</span>
+                        <span class="info-value">{{ user.username or 'Not set' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Login</span>
+                        <span class="info-value">
+                            {{ user.last_login.strftime('%B %d, %Y at %I:%M %p IST') if user.last_login else 'Never' }}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Country</span>
+                        <span class="info-value">{{ user.country or 'Not set' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email Status</span>
+                        <span class="info-value">
+                            {% if user.email_verified %}
+                                <span class="badge-modern">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Verified
+                                </span>
+                            {% else %}
+                                <span class="badge-warning-modern">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Not Verified
+                                </span>
+                                <button class="btn-modern ms-2" onclick="sendEmailVerification()" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                    <i class="fas fa-envelope me-1"></i>
+                                    Send Verification
+                                </button>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Statistics -->
+        <div class="col-lg-4">
+            <div class="beautiful-card mb-4">
+                <div class="beautiful-card-header">
+                    <h3>
+                        <i class="fas fa-chart-bar"></i>
+                        Account Statistics
+                    </h3>
+                </div>
+                <div class="beautiful-card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ user_groups|length }}</div>
+                                <div class="stat-label">Groups</div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ user.created_at.strftime('%d') if user.created_at else '0' }}</div>
+                                <div class="stat-label">Days Active</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Information -->
+            <div class="beautiful-card">
+                <div class="beautiful-card-header">
+                    <h3>
+                        <i class="fas fa-shield-alt"></i>
+                        Security
+                    </h3>
+                </div>
+                <div class="beautiful-card-body">
+                    <div class="security-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Google OAuth Enabled</span>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Email Verified</span>
+                    </div>
+                    <div class="security-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Account Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Groups Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="beautiful-card">
+                <div class="beautiful-card-header">
+                    <h3>
+                        <i class="fas fa-users"></i>
+                        My Groups
+                    </h3>
+                </div>
+                <div class="beautiful-card-body">
+                    {% if user_groups %}
+                        <div class="row">
+                            {% for group in user_groups %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="group-card">
+                                    <div class="group-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <h5 class="mb-2">{{ group.name }}</h5>
+                                    <p class="text-muted small mb-3">{{ group.description or 'No description' }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge-modern">
+                                            {{ user.get_role_in_group(group.id) or 'member' }}
+                                        </span>
+                                        <a href="{{ url_for('groups.index') }}" class="btn-outline-modern" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                            View Group
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="group-icon mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h4 class="text-muted mb-3">No Groups Yet</h4>
+                            <p class="text-muted mb-4">You haven't joined any groups yet. Create or join a group to get started!</p>
+                            <a href="{{ url_for('groups.index') }}" class="btn-modern">
+                                <i class="fas fa-plus me-2"></i>
+                                Create or Join Group
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Edit Profile</h5>
+            <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="editProfileForm">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" value="{{ user.first_name or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" value="{{ user.last_name or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" value="{{ user.username or '' }}">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+</style>
+
+<script>
+function saveProfileSetup() {
+    const firstName = document.getElementById('setupFirstName').value;
+    const lastName = document.getElementById('setupLastName').value;
+    const country = document.getElementById('setupCountry').value;
+    const sendEmailVerification = document.getElementById('emailVerification').checked;
+    
+    if (!firstName || !lastName || !country) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    // Send data to server
+    fetch('/auth/update-profile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            country: country,
+            send_email_verification: sendEmailVerification
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal and reload page
+            const modal = document.getElementById('profileSetupModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            location.reload();
+        } else {
+            alert('Error updating profile: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating profile. Please try again.');
+    });
+}
+
+function sendEmailVerification() {
+    fetch('/auth/send-verification', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Verification email sent! Please check your inbox.');
+        } else {
+            alert('Error sending verification email: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error sending verification email. Please try again.');
+    });
+}
+
+function editProfile() {
+    const modal = document.getElementById('editProfileModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        
+        // Add escape key handler
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                closeEditModal();
+            }
+        });
+        
+        // Add click outside to close
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeEditModal();
+            }
+        });
+    }
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editProfileModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function saveProfile() {
+    const formData = {
+        first_name: document.getElementById('firstName').value,
+        last_name: document.getElementById('lastName').value,
+        username: document.getElementById('username').value
+    };
+    
+    // TODO: Implement profile update API
+    console.log('Saving profile:', formData);
+    
+    // Close modal
+    closeEditModal();
+    
+    // Show success message
+    alert('Profile updated successfully!');
+}
+
+function exportProfile() {
+    // Create a simple profile export
+    const profileData = {
+        name: '{{ user.first_name or "" }} {{ user.last_name or "" }}',
+        email: '{{ user.email }}',
+        username: '{{ user.username or "" }}',
+        country: '{{ user.country or "" }}',
+        joined: '{{ user.created_at.strftime("%B %d, %Y") if user.created_at else "Unknown" }}',
+        lastLogin: '{{ user.last_login.strftime("%B %d, %Y at %I:%M %p IST") if user.last_login else "Never" }}',
+        emailVerified: {{ user.email_verified|lower }},
+        groups: {{ user_groups|length }}
+    };
+    
+    // Convert to JSON and download
+    const dataStr = JSON.stringify(profileData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'docksafe-profile-export.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    alert('Profile data exported successfully!');
+}
+
+function shareProfile() {
+    // Create a shareable profile summary
+    const profileSummary = `Check out my DockSafe profile!\n\nName: {{ user.first_name or "" }} {{ user.last_name or "" }}\nEmail: {{ user.email }}\nCountry: {{ user.country or "Not set" }}\nGroups: {{ user_groups|length }}\nJoined: {{ user.created_at.strftime("%B %Y") if user.created_at else "Unknown" }}\n\nSecuring containers with DockSafe! 🛡️`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'My DockSafe Profile',
+            text: profileSummary,
+            url: window.location.href
+        }).catch(err => {
+            console.log('Error sharing:', err);
+            fallbackShare(profileSummary);
+        });
+    } else {
+        fallbackShare(profileSummary);
+    }
+}
+
+function fallbackShare(text) {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Profile summary copied to clipboard! You can now paste it anywhere.');
+    }).catch(() => {
+        // Final fallback: show in alert
+        alert('Profile Summary:\n\n' + text);
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}DockSafe - Groups{% endblock %}
+{% block page_title %}Groups{% endblock %}
+
+{% block content %}
+<!-- Groups Header -->
+<div class="mb-8">
+    <div class="card">
+        <div class="card-body text-center py-8">
+            <div class="mb-4">
+                <i class="fas fa-users text-4xl text-blue-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Groups</h1>
+                <p class="text-lg text-gray-600 mb-4">
+                    Organize your scans by teams and projects
+                </p>
+                <p class="text-gray-500 max-w-2xl mx-auto">
+                    Create groups to organize your container scans, manage team access, and track security metrics across different projects.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Group Button -->
+<div class="mb-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-900">Your Groups</h2>
+            <p class="text-gray-600">Manage your groups and team access</p>
+        </div>
+        <button onclick="showCreateGroupModal()" class="btn btn-primary">
+            <i class="fas fa-plus mr-2"></i>
+            Create Group
+        </button>
+    </div>
+</div>
+
+<!-- Groups Grid -->
+<div id="groupsContainer">
+    {% if groups %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for group in groups %}
+            <div class="card group-card {{ 'ring-2 ring-blue-500 bg-blue-50' if group.id == selected_group_id else '' }}">
+                <div class="card-body">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ group.name }}</h3>
+                            <p class="text-sm text-gray-600">{{ group.description or 'No description' }}</p>
+                        </div>
+                        {% if group.id == selected_group_id %}
+                            <span class="badge bg-blue-600">Active</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ group.member_count }}</div>
+                            <div class="text-sm text-gray-500">Members</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ group.scan_count }}</div>
+                            <div class="text-sm text-gray-500">Scans</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        {% if group.id != selected_group_id %}
+                            <button onclick="switchGroup({{ group.id }})" class="btn btn-outline-primary flex-1">
+                                <i class="fas fa-exchange-alt mr-1"></i>
+                                Switch Group
+                            </button>
+                        {% endif %}
+                        
+                        {% if group.role in ['owner', 'admin'] %}
+                            <a href="{{ url_for('groups.manage_group', group_id=group.id) }}" class="btn btn-primary flex-1">
+                                <i class="fas fa-cog mr-1"></i>
+                                Manage
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-12">
+                <i class="fas fa-users text-6xl text-gray-400 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Groups Yet</h3>
+                <p class="text-gray-500 mb-6">Create your first group to start organizing your scans</p>
+                <button onclick="showCreateGroupModal()" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>
+                    Create Your First Group
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Create Group Modal -->
+<div id="createGroupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Create New Group</h3>
+        
+        <form id="createGroupForm" class="space-y-4">
+            <div>
+                <label for="groupName" class="form-label">Group Name</label>
+                <input type="text" id="groupName" name="name" class="form-control" placeholder="e.g., Development Team" required>
+            </div>
+            
+            <div>
+                <label for="groupDescription" class="form-label">Description</label>
+                <textarea id="groupDescription" name="description" class="form-control" rows="3" placeholder="Brief description of this group..."></textarea>
+            </div>
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="hideCreateGroupModal()" class="btn btn-outline-primary">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>
+                    Create Group
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Show create group modal
+function showCreateGroupModal() {
+    document.getElementById('createGroupModal').style.display = 'flex';
+    document.getElementById('groupName').focus();
+}
+
+// Hide create group modal
+function hideCreateGroupModal() {
+    document.getElementById('createGroupModal').style.display = 'none';
+    document.getElementById('createGroupForm').reset();
+}
+
+// Switch group
+function switchGroup(groupId) {
+    fetch('/groups/select', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ group_id: groupId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Error switching group: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error switching group');
+    });
+}
+
+// Handle create group form
+document.getElementById('createGroupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = {
+        name: formData.get('name'),
+        description: formData.get('description')
+    };
+    
+    fetch('/groups/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Error creating group: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating group');
+    });
+});
+
+// Close modal when clicking outside
+document.getElementById('createGroupModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideCreateGroupModal();
+    }
+});
+</script>
+{% endblock %}

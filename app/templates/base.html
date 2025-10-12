@@ -5,64 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DockSafe - Container Image Vulnerability Scanner{% endblock %}</title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Fallback Font Awesome CDN -->
-    <link href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* Modern Font Stack */
-        body {
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        /* Modern Navbar */
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: none;
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            color: white !important;
-            font-size: 1.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        .navbar-nav .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin: 0 2px;
-        }
-        
-        .navbar-nav .nav-link:hover {
-            color: white !important;
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
-        }
-        
-        /* Modern Cards */
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            overflow: hidden;
-            color: #2c3e50;
+        *:not(.fas):not(.far):not(.fab):not(.fa):not([class*="fa-"]) {
+            font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         /* Ensure Font Awesome icons are always visible */
-        .fas, .fab, .far {
+        .fas, .far, .fab, .fa, [class*="fa-"] {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
             display: inline-block !important;
             font-style: normal !important;
             font-variant: normal !important;
@@ -70,366 +29,632 @@
             -webkit-font-smoothing: antialiased !important;
         }
         
-        /* Fallback for when Font Awesome doesn't load */
-        .fas:before {
-            content: attr(data-fallback);
+        /* Modern Layout */
+        body {
+            margin: 0;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-decoration: none;
+        }
+        
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+        
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0 0 0.75rem 1.5rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .nav-item.active {
+            background: #eff6ff;
+            color: #3b82f6;
+            border-left-color: #3b82f6;
+        }
+        
+        .nav-icon {
+            width: 1.25rem;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Top Navigation */
+        .top-navbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .sidebar-toggle:hover {
+            background: #f3f4f6;
+            color: #1e293b;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+        
+        .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-menu {
+            position: relative;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background 0.2s ease;
+        }
+        
+        .user-info:hover {
+            background: #f3f4f6;
+        }
+        
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .user-avatar:before {
+            content: attr(data-initial);
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .user-menu:hover .user-dropdown {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .dropdown-divider {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 0.5rem 0;
+        }
+        
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            background: #f8fafc;
+        }
+        
+        /* Modern Cards */
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
         
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
         }
         
         .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1.5rem;
             font-weight: 600;
-            border-radius: 16px 16px 0 0 !important;
+            color: #1e293b;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        .stat-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .stat-icon.primary { background: #dbeafe; color: #3b82f6; }
+        .stat-icon.success { background: #dcfce7; color: #16a34a; }
+        .stat-icon.warning { background: #fef3c7; color: #d97706; }
+        .stat-icon.danger { background: #fee2e2; color: #dc2626; }
+        .stat-icon.info { background: #e0f2fe; color: #0891b2; }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: #f3f4f6;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 0.25rem;
+            transition: width 0.3s ease;
         }
         
         /* Modern Buttons */
         .btn {
-            border-radius: 12px;
-            font-weight: 600;
-            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
             transition: all 0.3s ease;
+            padding: 0.75rem 1.5rem;
             border: none;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            background: #3b82f6;
+            color: white;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            background: #2563eb;
+            transform: translateY(-1px);
         }
         
         .btn-success {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.4);
+            background: #16a34a;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #15803d;
         }
         
         .btn-warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+            background: #d97706;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #b45309;
         }
         
         .btn-danger {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            background: #dc2626;
+            color: white;
         }
         
-        /* Modern Form Controls */
-        .form-control {
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
             border-radius: 12px;
-            border: 2px solid #e9ecef;
-            padding: 12px 16px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.9);
-            color: #2c3e50;
-        }
-        
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border: 1px solid #e5e7eb;
             background: white;
         }
         
-        .form-select {
-            border-radius: 12px;
-            border: 2px solid #e9ecef;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #2c3e50;
-        }
-        
-        /* Modern Badges */
-        .badge {
-            border-radius: 8px;
-            font-weight: 600;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-        
-        /* Severity Colors */
-        .severity-critical {
-            color: #ff6b6b;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(255, 107, 107, 0.3);
-        }
-        
-        .severity-high {
-            color: #f39c12;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(243, 156, 18, 0.3);
-        }
-        
-        .severity-medium {
-            color: #3498db;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(52, 152, 219, 0.3);
-        }
-        
-        .severity-low {
-            color: #27ae60;
-            font-weight: bold;
-            text-shadow: 0 1px 2px rgba(39, 174, 96, 0.3);
-        }
-        
-        /* Status Colors */
-        .status-success {
-            color: #27ae60;
-            font-weight: 600;
-        }
-        
-        .status-failed {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-        
-        .status-in-progress {
-            color: #3498db;
-            font-weight: 600;
-        }
-        
-        /* Modern Alerts */
-        .alert {
-            border-radius: 12px;
-            border: none;
-            padding: 16px 20px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-        
-        /* Modern Tables */
         .table {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            color: #2c3e50;
+            margin-bottom: 0;
+            background: white;
         }
         
-        .table thead th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+        .table th {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
             font-weight: 600;
-            padding: 16px;
+            color: #374151;
+            padding: 1rem;
         }
         
-        .table tbody tr {
-            transition: all 0.3s ease;
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            color: #1e293b;
         }
         
         .table tbody tr:hover {
-            background: rgba(102, 126, 234, 0.05);
-            transform: scale(1.01);
+            background: #f9fafb;
         }
         
-        /* Modern Footer */
-        footer {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+        /* Badge Styles */
+        .badge {
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
         }
         
-        /* Glass Morphism Effect */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .badge.bg-success { background: #16a34a !important; }
+        .badge.bg-danger { background: #dc2626 !important; }
+        .badge.bg-warning { background: #d97706 !important; }
+        .badge.bg-info { background: #0891b2 !important; }
+        
+        /* Form Controls */
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: #1e293b;
         }
         
-        /* Modern Spinner */
-        .spinner-border {
-            border-width: 3px;
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: white;
+            outline: none;
         }
         
-        /* General text color for better readability */
-        .text-muted {
-            color: #495057 !important;
-        }
-        
-        .text-dark {
-            color: #2c3e50 !important;
-        }
-        
-        /* Ensure all text in cards and containers is readable */
-        .card-body, .container, .row, .col {
-            color: #2c3e50;
-        }
-        
-        /* Form labels and text */
-        label, .form-label {
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        /* Small text and descriptions */
-        small, .small {
-            color: #495057;
-        }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        }
-        
-        /* Modern Modal */
-        .modal-content {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 16px 16px 0 0;
-            border: none;
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
         }
         
         /* Responsive Design */
         @media (max-width: 768px) {
-            .card {
-                margin-bottom: 20px;
+            .sidebar {
+                transform: translateX(-100%);
             }
             
-            .btn {
-                width: 100%;
-                margin-bottom: 10px;
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                padding: 1rem;
             }
         }
         
-        /* Override any Bootstrap text colors that might be too light */
-        .text-primary {
-            color: #2c3e50 !important;
+        /* Flash Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
         }
         
-        .text-secondary {
-            color: #495057 !important;
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
         }
         
-        /* Ensure headings are visible */
-        h1, h2, h3, h4, h5, h6 {
-            color: #2c3e50;
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
         }
         
-        /* Ensure paragraph text is readable */
-        p {
-            color: #2c3e50;
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #bfdbfe;
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <img src="{{ url_for('static', filename='images/docksafe-logo.svg') }}" alt="DockSafe Logo" width="32" height="32" class="me-2">
-                DockSafe
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.index') }}">
-                            <i class="fas fa-home me-1"></i>Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard.index') }}">
-                            <i class="fas fa-chart-line me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('scanner.scan_image') }}">
-                            <i class="fas fa-search me-1"></i>Scanner
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('reports.index') }}">
-                            <i class="fas fa-file-alt me-1"></i>Reports
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('notifications.index') }}">
-                            <i class="fas fa-bell me-1"></i>Notifications
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.about') }}">
-                            <i class="fas fa-info-circle me-1"></i>About
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="container mt-4" style="position: relative; z-index: 1;">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <div class="app-layout">
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
         
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-5 py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2025 DockSafe. Container Image Vulnerability Scanner.</p>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navigation Bar -->
+            <nav class="top-navbar">
+                <div class="navbar-content">
+                    <div class="navbar-left">
+                        <button class="sidebar-toggle" onclick="toggleSidebar()">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                    </div>
+                    
+                    <div class="navbar-right">
+                        <div class="user-menu">
+                            <div class="user-info">
+                                <img src="{{ session.get('picture_url', 'https://ui-avatars.com/api/?name=' + session.get('username', 'User') + '&background=3b82f6&color=fff&size=32') }}" 
+                                     alt="Profile" 
+                                     class="user-avatar"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                     data-initial="{{ session.get('username', 'U')[0].upper() }}">
+                                <div class="user-avatar" style="display: none;" data-initial="{{ session.get('username', 'U')[0].upper() }}"></div>
+                                <span class="user-name">{{ session.get('username', 'User') }}</span>
+                            </div>
+                            <div class="user-dropdown">
+                                <a href="{{ url_for('auth.profile') }}" class="dropdown-item">
+                                    <i class="fas fa-user"></i> Profile
+                                </a>
+                                <a href="{{ url_for('main.about') }}" class="dropdown-item">
+                                    <i class="fas fa-info-circle"></i> About
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="{{ url_for('auth.logout') }}" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-end">
-                    <p class="mb-0">Version 1.0.0</p>
-                </div>
+            </nav>
+            
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
             </div>
         </div>
-    </footer>
-
+    </div>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !sidebarToggle.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.querySelector('.sidebar');
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

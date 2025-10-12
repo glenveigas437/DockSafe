@@ -1,6 +1,3 @@
-"""
-Base vulnerability scanner engine
-"""
 
 import json
 import logging

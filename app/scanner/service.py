@@ -1,7 +1,3 @@
-"""
-Scanner service for handling vulnerability scanning operations
-"""
-
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
@@ -30,18 +26,7 @@ class ScannerService:
             return TrivyScanner(self.config)
     
     def scan_image(self, image_name: str, image_tag: str = 'latest', 
-                   user_id: Optional[str] = None) -> VulnerabilityScan:
-        """
-        Scan a container image for vulnerabilities and store results in database
-        
-        Args:
-            image_name: Name of the container image
-            image_tag: Tag of the container image
-            user_id: ID of the user requesting the scan
-            
-        Returns:
-            VulnerabilityScan: Database model instance with scan results
-        """
+                   user_id: Optional[str] = None, group_id: Optional[int] = None) -> VulnerabilityScan:
         logger.info(f"Starting vulnerability scan for {image_name}:{image_tag}")
         
         # Create scan record in database
@@ -49,7 +34,9 @@ class ScannerService:
             image_name=image_name,
             image_tag=image_tag,
             scan_status='IN_PROGRESS',
-            scanner_type=self.scanner_type
+            scanner_type=self.scanner_type,
+            group_id=group_id,
+            creator_id=user_id
         )
         
         try:
@@ -76,6 +63,9 @@ class ScannerService:
             logger.info(f"Scan completed for {image_name}:{image_tag} - "
                        f"Status: {scan_record.scan_status}, "
                        f"Vulnerabilities: {scan_record.total_vulnerabilities}")
+            
+            # Send notifications after successful scan completion
+            self._send_scan_notifications(scan_record)
             
             return scan_record
             
@@ -274,6 +264,100 @@ class ScannerService:
             },
             'top_vulnerable_images': top_vulnerable_images
         }
+    
+    def _send_scan_notifications(self, scan_record: VulnerabilityScan):
+        """Send notifications after scan completion"""
+        try:
+            if not scan_record.group_id:
+                logger.warning("No group_id found for scan, skipping notifications")
+                return
+            
+            from app.services.notification_service import NotificationService
+            from app.mappers.notification_mapper import NotificationMapper
+            
+            # Get notification configurations for this group
+            configs = NotificationMapper.get_configurations_by_group(scan_record.group_id)
+            
+            if not configs:
+                logger.info(f"No notification configurations found for group {scan_record.group_id}")
+                return
+            
+            # Prepare scan data for notifications
+            scan_data = {
+                'scan_id': scan_record.id,
+                'image_name': scan_record.image_name,
+                'image_tag': scan_record.image_tag,
+                'scan_status': scan_record.scan_status,
+                'total_vulnerabilities': scan_record.total_vulnerabilities,
+                'critical_count': scan_record.critical_count or 0,
+                'high_count': scan_record.high_count or 0,
+                'medium_count': scan_record.medium_count or 0,
+                'low_count': scan_record.low_count or 0,
+                'scan_duration_seconds': scan_record.scan_duration_seconds,
+                'scanner_type': scan_record.scanner_type,
+                'scan_timestamp': scan_record.scan_timestamp.isoformat() if scan_record.scan_timestamp else None
+            }
+            
+            # Send notifications based on scan status and severity
+            for config in configs:
+                try:
+                    if config.type == 'chat' and config.service == 'Slack' and config.is_active:
+                        self._send_slack_notification(config, scan_data)
+                    elif config.type == 'email' and config.is_active:
+                        self._send_email_notification(config, scan_data)
+                except Exception as e:
+                    logger.error(f"Failed to send notification via {config.service}: {e}")
+            
+            logger.info(f"Sent scan completion notifications for scan {scan_record.id}")
+            
+        except Exception as e:
+            logger.error(f"Error sending scan notifications: {e}")
+    
+    def _send_slack_notification(self, config, scan_data):
+        """Send Slack notification for scan completion"""
+        try:
+            from app.notifications.slack_service import create_slack_service
+            
+            slack_service = create_slack_service(
+                webhook_url=config.webhook_url,
+                channel=config.channel or '#general'
+            )
+            
+            if scan_data['scan_status'] == 'SUCCESS':
+                # Send scan completion notification
+                slack_service.send_scan_completion_notification(scan_data)
+            elif scan_data['scan_status'] == 'FAILED':
+                # Send scan failure notification
+                slack_service.send_scan_failure_notification(scan_data)
+                
+        except Exception as e:
+            logger.error(f"Failed to send Slack notification: {e}")
+    
+    def _send_email_notification(self, config, scan_data):
+        """Send email notification for scan completion"""
+        try:
+            from app.notifications.email_service import EmailNotificationService
+            from flask import current_app
+            
+            # Create email service instance
+            email_service = EmailNotificationService(
+                smtp_server=current_app.config.get('DOCSAFE_EMAIL_SMTP_SERVER'),
+                smtp_port=current_app.config.get('DOCSAFE_EMAIL_SMTP_PORT'),
+                username=current_app.config.get('DOCSAFE_EMAIL_USERNAME'),
+                password=current_app.config.get('DOCSAFE_EMAIL_PASSWORD'),
+                use_tls=current_app.config.get('DOCSAFE_EMAIL_USE_TLS'),
+                recipients=config.email_recipients.split(',') if config.email_recipients else []
+            )
+            
+            if scan_data['scan_status'] == 'SUCCESS':
+                # Send scan completion notification
+                email_service.send_scan_completion_notification(scan_data)
+            elif scan_data['scan_status'] == 'FAILED':
+                # Send scan failure notification
+                email_service.send_scan_failure_notification(scan_data)
+                
+        except Exception as e:
+            logger.error(f"Failed to send email notification: {e}")
     
     def is_scanner_available(self) -> bool:
         """Check if the configured scanner is available"""

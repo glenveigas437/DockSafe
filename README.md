@@ -1,6 +1,70 @@
 # DockSafe
 Container Image Vulnerability Scanner
 
+## Quick Start
+
+### Prerequisites
+- Python 3.11+
+- Docker (for container scanning)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd DockSafe
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Initialize database**
+   ```bash
+   python3 init_db.py
+   ```
+
+5. **Run the application**
+   ```bash
+   python3 run.py
+   ```
+
+6. **Configure Google OAuth** (Required)
+   - Follow the setup guide in `GOOGLE_OAUTH_SETUP.md`
+   - Create a `.env` file with your Google OAuth credentials
+   - Example `.env` file:
+     ```env
+     GOOGLE_CLIENT_ID=your-google-client-id
+     GOOGLE_CLIENT_SECRET=your-google-client-secret
+     GOOGLE_REDIRECT_URI=http://localhost:5000/auth/google/callback
+     SECRET_KEY=your-secret-key
+     JWT_SECRET_KEY=your-jwt-secret-key
+     ```
+
+7. **Access the application**
+   - Open your browser to `http://localhost:5000`
+   - Click "Continue with Google" to sign in
+   - Your account will be created automatically on first login
+
+### Features
+
+- **Google SSO Authentication**: Secure single sign-on with Google OAuth 2.0
+- **JWT-based Authentication**: Secure user authentication with JWT tokens
+- **Automated Vulnerability Scanning**: Scan container images using Trivy or Clair scanners
+- **Real-time Dashboard**: Monitor scan results and security metrics
+- **CI/CD Integration**: Seamlessly integrate with Jenkins and GitHub Actions
+- **Multi-channel Notifications**: Slack, Teams, and email notifications
+- **Comprehensive Reporting**: Generate detailed security reports
+- **Exception Management**: Manage vulnerability exceptions and whitelists
+- **Modern UI**: Clean, responsive interface built with Tailwind CSS
+
 
 ## Design Document
 
@@ -69,7 +133,7 @@ DockSafe is an automated security solution designed to integrate seamlessly into
 **Frontend:**
 - **Dashboard:** Grafana (primary), Custom React app (alternative)
 - **Templates:** Jinja2 (existing Flask templates)
-- **Styling:** Bootstrap 5 + Custom CSS
+- **Styling:** Tailwind CSS + Custom Components
 
 **Infrastructure:**
 - **Containerization:** Docker (existing)

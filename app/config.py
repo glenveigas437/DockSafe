@@ -1,7 +1,3 @@
-"""
-Configuration settings for DockSafe application
-"""
-
 import os
 from datetime import timedelta
 
@@ -10,6 +6,15 @@ class Config:
     
     # Flask Configuration
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    
+    # Session Configuration
+    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+    SESSION_COOKIE_NAME = 'docksafe_session'
+    SESSION_COOKIE_DOMAIN = None
+    SESSION_COOKIE_PATH = '/'
     
     # Database Configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
@@ -29,6 +34,14 @@ class Config:
     EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
     EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
     
+    # DockSafe Email Configuration
+    DOCSAFE_EMAIL_SMTP_SERVER = os.environ.get('DOCSAFE_EMAIL_SMTP_SERVER', 'smtp.gmail.com')
+    DOCSAFE_EMAIL_SMTP_PORT = int(os.environ.get('DOCSAFE_EMAIL_SMTP_PORT', 587))
+    DOCSAFE_EMAIL_USERNAME = os.environ.get('DOCSAFE_EMAIL_USERNAME', 'noreply.docksafe@gmail.com')
+    DOCSAFE_EMAIL_PASSWORD = os.environ.get('DOCSAFE_EMAIL_PASSWORD')
+    DOCSAFE_EMAIL_FROM = os.environ.get('DOCSAFE_EMAIL_FROM', 'noreply.docksafe@gmail.com')
+    DOCSAFE_EMAIL_USE_TLS = os.environ.get('DOCSAFE_EMAIL_USE_TLS', 'true').lower() == 'true'
+    
     # Dashboard Configuration
     DASHBOARD_REFRESH_INTERVAL = int(os.environ.get('DASHBOARD_REFRESH_INTERVAL', 30))
     MAX_SCAN_HISTORY = int(os.environ.get('MAX_SCAN_HISTORY', 1000))
@@ -42,9 +55,15 @@ class Config:
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
     
+    # Google OAuth Configuration
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+    GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI')
+    
     # Security Configuration
     SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
     SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     
     # Logging Configuration

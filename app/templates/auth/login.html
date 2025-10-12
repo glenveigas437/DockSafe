@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DockSafe</title>
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Header -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-shield-alt" style="color: #6366f1; font-size: 2rem;"></i>
+                    <h1>DockSafe</h1>
+                </div>
+                <p class="login-subtitle">Secure Your Container Images</p>
+                <p class="login-description">
+                    Continue your learning to achieve your target! Join thousands of developers 
+                    who trust DockSafe to secure their containerized applications.
+                </p>
+            </div>
+
+            <!-- Google SSO Login -->
+            <div class="google-login-container">
+                <a href="{{ url_for('auth.google_login') }}" class="btn btn-google">
+                    <i class="fab fa-google"></i>
+                    Continue with Google
+                </a>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <div class="login-info">
+                    <p>Sign in with your Google account to access DockSafe. Your account will be automatically created if it doesn't exist.</p>
+                </div>
+            </div>
+
+            <!-- Register Link -->
+            <div class="login-footer">
+                <p>New to DockSafe? Your account will be created automatically when you sign in with Google.</p>
+            </div>
+        </div>
+
+        <!-- Motivational Text -->
+        <div class="motivational-text">
+            <h2>Sharpen Your Skills with Professional Security Tools</h2>
+            <p>Protect your containerized applications with real-time vulnerability scanning, 
+               comprehensive reporting, and seamless CI/CD pipeline integration.</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <i class="fas fa-search"></i>
+                    <span>Automated Vulnerability Scanning</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Real-time Analytics Dashboard</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Instant Security Notifications</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-rocket"></i>
+                    <span>CI/CD Pipeline Integration</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .login-logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .login-subtitle {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .login-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0 0 2rem 0;
+        }
+
+        .login-form {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: #f9fafb;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            color: #4f46e5;
+        }
+
+        .google-login-container {
+            margin-bottom: 2rem;
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-google:hover {
+            background: #357ae8;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .btn-google i {
+            font-size: 1.2rem;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .login-info {
+            text-align: center;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .login-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .login-footer {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .login-footer p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .register-link {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link:hover {
+            color: #4f46e5;
+        }
+
+        .demo-credentials {
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .demo-credentials h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .demo-user {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .motivational-text {
+            color: white;
+            padding: 2rem;
+        }
+
+        .motivational-text h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            line-height: 1.2;
+        }
+
+        .motivational-text p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0 0 2rem 0;
+            opacity: 0.9;
+        }
+
+        .features-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .feature-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 1rem;
+            }
+            
+            .motivational-text {
+                order: -1;
+                text-align: center;
+            }
+            
+            .motivational-text h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+
+    <script>
+        // Add loading state to Google login button
+        document.querySelector('.btn-google').addEventListener('click', function(e) {
+            const button = this;
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Google...';
+            button.style.pointerEvents = 'none';
+            
+            // Reset after 5 seconds if something goes wrong
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.pointerEvents = 'auto';
+            }, 5000);
+        });
+
+        // Show troubleshooting info if there's an error
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error') || document.querySelector('.alert-error')) {
+            const troubleshooting = document.createElement('div');
+            troubleshooting.className = 'login-troubleshooting';
+            troubleshooting.innerHTML = `
+                <h3><i class="fas fa-tools"></i> Troubleshooting</h3>
+                <div class="troubleshooting-item">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Session Expired?</strong>
+                        <p>If you see "OAuth session expired" or "Security validation failed", please:</p>
+                        <ul>
+                            <li>Close all browser tabs with DockSafe</li>
+                            <li>Clear your browser cookies for this site</li>
+                            <li>Try logging in again in a fresh tab</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            // Add CSS for troubleshooting
+            const style = document.createElement('style');
+            style.textContent = `
+                .login-troubleshooting {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin-top: 20px;
+                    backdrop-filter: blur(10px);
+                }
+                .login-troubleshooting h3 {
+                    color: #fff;
+                    margin-bottom: 15px;
+                    font-size: 1.1rem;
+                }
+                .troubleshooting-item {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 12px;
+                }
+                .troubleshooting-item i {
+                    color: #60a5fa;
+                    margin-top: 2px;
+                }
+                .troubleshooting-item strong {
+                    color: #fff;
+                    display: block;
+                    margin-bottom: 5px;
+                }
+                .troubleshooting-item p {
+                    color: rgba(255, 255, 255, 0.8);
+                    margin-bottom: 8px;
+                }
+                .troubleshooting-item ul {
+                    color: rgba(255, 255, 255, 0.8);
+                    margin-left: 20px;
+                }
+                .troubleshooting-item li {
+                    margin-bottom: 4px;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Insert troubleshooting after the login card
+            const loginCard = document.querySelector('.login-card');
+            loginCard.parentNode.insertBefore(troubleshooting, loginCard.nextSibling);
+        }
+    </script>
+</body>
+</html>

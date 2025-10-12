@@ -1,6 +1,3 @@
-"""
-Trivy vulnerability scanner implementation
-"""
 
 import json
 import subprocess

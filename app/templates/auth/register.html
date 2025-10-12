@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - DockSafe</title>
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+    <div class="register-container">
+        <div class="register-card">
+            <!-- Header -->
+            <div class="register-header">
+                <div class="register-logo">
+                    <i class="fas fa-shield-alt" style="color: #6366f1; font-size: 2rem;"></i>
+                    <h1>DockSafe</h1>
+                </div>
+                <p class="register-subtitle">Create Your Account</p>
+                <p class="register-description">
+                    Join DockSafe and start securing your container images today. 
+                    Get access to professional vulnerability scanning tools.
+                </p>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="registerForm" method="POST" class="register-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label">
+                            <i class="fas fa-user"></i>
+                            First Name
+                        </label>
+                        <input type="text" id="first_name" name="first_name" 
+                               class="form-control" placeholder="First name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Last Name
+                        </label>
+                        <input type="text" id="last_name" name="last_name" 
+                               class="form-control" placeholder="Last name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-at"></i>
+                        Username
+                    </label>
+                    <input type="text" id="username" name="username" 
+                           class="form-control" placeholder="Choose a username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </label>
+                    <input type="email" id="email" name="email" 
+                           class="form-control" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Password
+                    </label>
+                    <input type="password" id="password" name="password" 
+                           class="form-control" placeholder="Create a password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Confirm Password
+                    </label>
+                    <input type="password" id="confirm_password" name="confirm_password" 
+                           class="form-control" placeholder="Confirm your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary register-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="register-footer">
+                <p>Already have an account? 
+                    <a href="{{ url_for('auth.login') }}" class="login-link">Sign In</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="benefits-text">
+            <h2>Why Choose DockSafe?</h2>
+            <p>Join thousands of developers who trust DockSafe to secure their containerized applications.</p>
+            
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h4>Enterprise-Grade Security</h4>
+                        <p>Protect your applications with industry-standard vulnerability scanning</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <h4>Real-time Analytics</h4>
+                        <p>Monitor security trends with comprehensive dashboards and reports</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-cogs"></i>
+                    <div>
+                        <h4>CI/CD Integration</h4>
+                        <p>Seamlessly integrate with your existing development workflows</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <i class="fas fa-bell"></i>
+                    <div>
+                        <h4>Instant Alerts</h4>
+                        <p>Get notified immediately when critical vulnerabilities are detected</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .register-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .register-logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .register-subtitle {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .register-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0 0 2rem 0;
+        }
+
+        .register-form {
+            margin-bottom: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: #f9fafb;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .register-footer {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .register-footer p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .login-link {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link:hover {
+            color: #4f46e5;
+        }
+
+        .benefits-text {
+            color: white;
+            padding: 2rem;
+        }
+
+        .benefits-text h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            line-height: 1.2;
+        }
+
+        .benefits-text p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0 0 2rem 0;
+            opacity: 0.9;
+        }
+
+        .benefits-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .benefit-item i {
+            width: 24px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+
+        .benefit-item h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .benefit-item p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefits-text {
+                order: -1;
+                text-align: center;
+            }
+            
+            .benefits-text h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const button = this.querySelector('.register-btn');
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('{{ url_for("auth.register") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    window.location.href = '{{ url_for("auth.login") }}';
+                } else {
+                    const data = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, 'text/html');
+                    const alerts = doc.querySelectorAll('.alert');
+                    
+                    // Show error messages
+                    alerts.forEach(alert => {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'alert alert-danger';
+                        errorDiv.innerHTML = alert.innerHTML;
+                        this.insertBefore(errorDiv, this.firstChild);
+                        
+                        setTimeout(() => errorDiv.remove(), 5000);
+                    });
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed. Please try again.');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+
