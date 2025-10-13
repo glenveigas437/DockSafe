@@ -1,4 +1,4 @@
-name: Test Suite
+name: DockSafe Tests
 
 on:
   push:
@@ -6,21 +6,22 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  PYTHON_VERSION: '3.13'
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9, 3.10, 3.11]
-
-    steps:
-    - uses: actions/checkout@v4
     
-    - name: Set up Python ${{ matrix.python-version }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
-    
+        python-version: ${{ env.PYTHON_VERSION }}
+
     - name: Cache pip dependencies
       uses: actions/cache@v3
       with:
@@ -28,27 +29,40 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-test.txt
-    
-    - name: Run tests
+
+    - name: Set up environment variables
       run: |
-        pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term-missing
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
-    
+        echo "FLASK_ENV=testing" >> $GITHUB_ENV
+        echo "SECRET_KEY=test-secret-key" >> $GITHUB_ENV
+        echo "DATABASE_URL=sqlite:///test.db" >> $GITHUB_ENV
+        echo "JWT_SECRET_KEY=test-jwt-secret" >> $GITHUB_ENV
+        echo "GOOGLE_CLIENT_ID=test-client-id" >> $GITHUB_ENV
+        echo "GOOGLE_CLIENT_SECRET=test-client-secret" >> $GITHUB_ENV
+
+    - name: Run tests with coverage
+      run: |
+        python -m pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term-missing
+
     - name: Upload coverage reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: coverage-report-${{ matrix.python-version }}
-        path: htmlcov/
+        name: coverage-report
+        path: |
+          coverage.xml
+          htmlcov/
+        retention-days: 30
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          .pytest_cache/
+        retention-days: 7
