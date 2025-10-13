@@ -23,6 +23,8 @@ class GroupMapper:
         group = Group(name=name, description=description, created_by=created_by)
         db.session.add(group)
         db.session.commit()
+        db.session.refresh(group)
+        return group
 
     @staticmethod
     def add_member(group_id, user_id, role=DatabaseConstants.DEFAULT_ROLE):
@@ -51,6 +53,20 @@ class GroupMapper:
                 )
             )
         ).scalar()
+        return result
+
+    @staticmethod
+    def get_user_role_in_group(group_id, user_id):
+        """Alias for get_user_role for backward compatibility."""
+        return GroupMapper.get_user_role(group_id, user_id)
+
+    @staticmethod
+    def get_group_members(group_id):
+        """Get all members of a group."""
+        from app.models import User
+        return (
+            User.query.join(user_groups).filter(user_groups.c.group_id == group_id).all()
+        )
 
     @staticmethod
     def is_member(group_id, user_id):
@@ -61,3 +77,4 @@ class GroupMapper:
                 )
             )
         ).scalar()
+        return result is not None

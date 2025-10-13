@@ -6,17 +6,19 @@ from app import db
 
 class ScanMapper:
     @staticmethod
-    def create_scan(image_name, image_tag, scanner_type, group_id, created_by):
+    def create_scan(image_name, image_tag, scanner_type, group_id, creator_id):
         scan = VulnerabilityScan(
             image_name=image_name,
             image_tag=image_tag,
             scanner_type=scanner_type,
             group_id=group_id,
-            created_by=created_by,
+            creator_id=creator_id,
             scan_status=DatabaseConstants.SCAN_STATUSES[2],
         )
         db.session.add(scan)
         db.session.commit()
+        db.session.refresh(scan)
+        return scan
 
     @staticmethod
     def update_scan(scan_id, **kwargs):
@@ -26,6 +28,9 @@ class ScanMapper:
                 if hasattr(scan, key):
                     setattr(scan, key, value)
             db.session.commit()
+            db.session.refresh(scan)
+            return scan
+        return None
 
     @staticmethod
     def get_scan_by_id(scan_id):
@@ -119,6 +124,7 @@ class ScanMapper:
         return {
             "total_scans": total_scans,
             "successful_scans": successful_scans,
+            "failed_scans": total_scans - successful_scans,
             "success_rate": (successful_scans / total_scans * 100)
             if total_scans > 0
             else 0,

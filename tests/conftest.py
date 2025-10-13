@@ -70,7 +70,7 @@ def sample_user(app):
         )
         db.session.add(user)
         db.session.commit()
-        return user.id  # Return ID instead of object to avoid detachment issues
+        return user.id  # Return ID to avoid detachment issues
 
 
 @pytest.fixture
@@ -96,7 +96,7 @@ def sample_group(app, sample_user):
         )
         db.session.commit()
         
-        return group.id  # Return ID instead of object
+        return group.id  # Return ID to avoid detachment issues
 
 
 @pytest.fixture
@@ -120,7 +120,7 @@ def sample_scan(app, sample_group, sample_user):
         )
         db.session.add(scan)
         db.session.commit()
-        return scan.id  # Return ID instead of object
+        return scan.id  # Return ID to avoid detachment issues
 
 
 @pytest.fixture
@@ -162,7 +162,7 @@ def sample_vulnerabilities(app, sample_scan):
         for vuln in vulnerabilities:
             db.session.add(vuln)
         db.session.commit()
-        return [v.id for v in vulnerabilities]  # Return IDs instead of objects
+        return [v.id for v in vulnerabilities]  # Return IDs to avoid detachment issues
 
 
 @pytest.fixture

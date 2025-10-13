@@ -18,7 +18,7 @@ class UserMapper:
 
     @staticmethod
     def create_user(
-        email, google_id=None, first_name=None, last_name=None, picture_url=None
+        email, google_id=None, first_name=None, last_name=None, picture_url=None, username=None
     ):
         user = User(
             email=email,
@@ -26,9 +26,11 @@ class UserMapper:
             first_name=first_name,
             last_name=last_name,
             picture_url=picture_url,
+            username=username,
         )
         db.session.add(user)
         db.session.commit()
+        db.session.refresh(user)
         return user
 
     @staticmethod
@@ -39,6 +41,9 @@ class UserMapper:
                 if hasattr(user, key):
                     setattr(user, key, value)
             db.session.commit()
+            db.session.refresh(user)
+            return user
+        return None
 
     @staticmethod
     def get_user_groups(user_id):
