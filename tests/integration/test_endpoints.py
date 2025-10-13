@@ -63,7 +63,7 @@ class TestScannerEndpoints:
     
     def test_scanner_page_requires_auth(self, client):
         """Test scanner page requires authentication."""
-        response = client.get('/scanner/')
+        response = client.get('/scanner/scan')
         assert response.status_code == 302  # Redirect to login
     
     def test_scan_endpoint_requires_auth(self, client):
@@ -72,7 +72,7 @@ class TestScannerEndpoints:
             'image_name': 'nginx',
             'image_tag': 'latest'
         })
-        assert response.status_code == 302  # Redirect to login
+        assert response.status_code == 401  # JSON request returns 401
 
 
 class TestReportsEndpoints:
@@ -85,7 +85,7 @@ class TestReportsEndpoints:
     
     def test_reports_api_requires_auth(self, client):
         """Test reports API requires authentication."""
-        response = client.get('/reports/api')
+        response = client.get('/reports/list')
         assert response.status_code == 302  # Redirect to login
 
 
@@ -103,7 +103,7 @@ class TestGroupsEndpoints:
             'name': 'Test Group',
             'description': 'A test group'
         })
-        assert response.status_code == 302  # Redirect to login
+        assert response.status_code == 401  # JSON request returns 401
 
 
 class TestNotificationsEndpoints:
@@ -168,7 +168,7 @@ class TestAuthenticatedEndpoints:
             sess['user_id'] = sample_user
             sess['selected_group_id'] = sample_group
         
-        response = client.get('/scanner/')
+        response = client.get('/scanner/scan')
         assert response.status_code == 200
         assert b'Scanner' in response.data
     
